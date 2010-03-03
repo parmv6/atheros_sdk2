@@ -84,7 +84,7 @@ main(int argc, char *argv[])
     struct sigaction sa;
     ATHBT_FILTER_INFO *pInfo;
     A_UINT32 btfiltFlags = 0;
-
+	
     A_COND_INIT(&g_WaitTerminate);
     A_MUTEX_INIT(&g_WaitTerminateLock);
     
@@ -128,11 +128,14 @@ main(int argc, char *argv[])
     }
 
     /* Launch the daemon if desired */
-    if (daemonize && daemon(0, console_output ? 1 : 0)) {
-        printf("Can't daemonize: %s\n", strerror(errno));
+    if (daemonize)
+    {
+	if(daemon(0, console_output ? 1 : 0)) 
+	{
+        printf("Can't daemonize: %s\n", strerror(errno));		
         exit(1);
+       }
     }
-
     /* Initialize the debug infrastructure */
     A_DBG_INIT("ATHBT", "Ath BT Filter Daemon");
     if (debug) {
