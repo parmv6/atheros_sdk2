@@ -1846,8 +1846,30 @@ ar6000_ioctl_giwrange(struct net_device *dev,
 int
 ar6000_ioctl_siwpriv(struct net_device *dev,
               struct iw_request_info *info,
-              struct sockaddr *ap_addr, char *extra)
+              struct iw_param *data, char *extra)
 {
+    AR_SOFTC_T *ar = (AR_SOFTC_T *)netdev_priv(dev);
+ 
+    AR_DEBUG2_PRINTF("ar6000_ioctl_siwpriv: cmd=0x%x, %s %s \n", info->cmd,data->flags, data->value);
+    if (strcasecmp(data->value, "LINKSPEED") == 0)
+    {
+        if(ar->arWmiReady == TRUE)
+        {
+            ar->arBitRate = 0xFFFF;
+            wmi_get_bitrate_cmd(ar->arWmi);
+            wait_event_interruptible_timeout(arEvent, ar->arBitRate != 0xFFFF, wmitimeout * HZ);
+        }
+        sprintf(data->value, "LinkSpeed %d",ar->arBitRate/1000);  
+        return 0;
+    }
+    if (strcasecmp(data->value, "MACADDR") == 0)
+    {
+        wait_event_interruptible_timeout(arEvent, dev->dev_addr[5] != 0, 3000);
+        AR_DEBUG_PRINTF("%x.%x.%x.%x.%x.%x\n",dev->dev_addr[0],dev->dev_addr[1],dev->dev_addr[2],dev->dev_addr[3],dev->dev_addr[4],dev->dev_addr[5]);
+        sprintf(data->value, "Macaddr = %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x", dev->dev_addr[0],dev->dev_addr[1],dev->dev_addr[2],dev->dev_addr[3],dev->dev_addr[4],dev->dev_addr[5]);
+        return 0;
+    }
+ 
     return -EOPNOTSUPP; /*for now*/
 }
 

@@ -568,7 +568,7 @@ ar6000_init_module(void)
         bypasswmi = 1;
         tgt_fw = art_fw;
     }else {
-        printk("Normal WIFI mode (tony).\n");
+        printk("Normal WIFI mode.\n");
     }
 #endif
 /* ATHENV */
@@ -3366,19 +3366,19 @@ ar6000_neighborReport_event(AR_SOFTC_T *ar, int numAps, WMI_NEIGHBOR_INFO *info)
     union iwreq_data wrqu;
     int i;
 
-    AR_DEBUG_PRINTF("AR6000 Neighbor Report Event\n");
+    AR_DEBUG2_PRINTF("AR6000 Neighbor Report Event\n");
     for (i=0; i < numAps; info++, i++) {
-        AR_DEBUG_PRINTF("bssid %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x ",
+        AR_DEBUG2_PRINTF("bssid %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x ",
             info->bssid[0], info->bssid[1], info->bssid[2],
             info->bssid[3], info->bssid[4], info->bssid[5]);
         if (info->bssFlags & WMI_PREAUTH_CAPABLE_BSS) {
-            AR_DEBUG_PRINTF("preauth-cap");
+            AR_DEBUG2_PRINTF("preauth-cap");
         }
         if (info->bssFlags & WMI_PMKID_VALID_BSS) {
-            AR_DEBUG_PRINTF(" pmkid-valid\n");
+            AR_DEBUG2_PRINTF(" pmkid-valid\n");
             continue;           /* we skip bss if the pmkid is already valid */
         }
-        AR_DEBUG_PRINTF("\n");
+        AR_DEBUG2_PRINTF("\n");
         snprintf(buf, sizeof(buf), "%s%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x",
                  tag,
                  info->bssid[0], info->bssid[1], info->bssid[2],
