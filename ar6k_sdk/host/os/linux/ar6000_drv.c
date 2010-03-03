@@ -3421,7 +3421,7 @@ ar6000_tkip_micerr_event(AR_SOFTC_T *ar, A_UINT8 keyid, A_BOOL ismcast)
 void
 ar6000_scanComplete_event(AR_SOFTC_T *ar, A_STATUS status)
 {
-    AR_DEBUG_PRINTF("AR6000 scan complete: %d\n", status);
+    AR_DEBUG2_PRINTF("AR6000 scan complete: %d\n", status);
     ar->scan_complete = 1;
     wake_up_interruptible(&ar6000_scan_queue);
 }
@@ -3432,7 +3432,7 @@ ar6000_targetStats_event(AR_SOFTC_T *ar,  WMI_TARGET_STATS *pTarget)
     TARGET_STATS *pStats = &ar->arTargetStats;
     A_UINT8 ac;
 
-    A_PRINTF("AR6000 updating target stats\n");
+    AR_DEBUG2_PRINTF("AR6000 updating target stats\n");
     pStats->tx_packets          += pTarget->txrxStats.tx_stats.tx_packets;
     pStats->tx_bytes            += pTarget->txrxStats.tx_stats.tx_bytes;
     pStats->tx_unicast_pkts     += pTarget->txrxStats.tx_stats.tx_unicast_pkts;
