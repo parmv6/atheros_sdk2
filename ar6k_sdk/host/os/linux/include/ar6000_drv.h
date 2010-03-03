@@ -270,7 +270,7 @@ typedef struct ar6_softc {
     A_UINT16                arListenInterval;
     struct ar6000_version   arVersion;
     A_UINT32                arTargetType;
-    A_INT8                  arRssi;
+    A_INT16                 arRssi;
     A_UINT8                 arTxPwr;
     A_BOOL                  arTxPwrSet;
     A_INT32                 arBitRate;
