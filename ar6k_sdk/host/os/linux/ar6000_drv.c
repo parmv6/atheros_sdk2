@@ -88,15 +88,15 @@ int allow_trace_signal = 0;
 /* ATHENV */
 #ifdef ANDROID_ENV
 int work_mode = 0;
-char *tgt_fw = "/system/lib/hw/athwlan.bin.z77";
-char *tgt_patch = "/system/lib/hw/data.patch.hw2_0.bin";
-char *tcmd_fw = "/system/lib/hw/athtcmd_ram.bin";
-static char *art_fw = "/system/lib/hw/device.bin";
-char *eeprom_bin = "/system/lib/hw/eeprom.bin";
+char *tgt_fw = "/system/lib/hw/wlan/athwlan.bin.z77";
+char *tgt_patch = "/system/lib/hw/wlan/data.patch.hw2_0.bin";
+char *tcmd_fw = "/system/lib/hw/wlan/athtcmd_ram.bin";
+static char *art_fw = "/system/lib/hw/wlan/device.bin";
+char *eeprom_bin = "/system/lib/hw/wlan/eeprom.bin";
 #ifdef FAKE_EEPROM_USED
-char *eeprom_data = "/system/lib/hw/fakeBoardData_AR6002.bin";
+char *eeprom_data = "/system/lib/hw/wlan/fakeBoardData_AR6002.bin";
 #else
-char *eeprom_data = "/system/lib/hw/eeprom.data";
+char *eeprom_data = "/system/lib/hw/wlan/eeprom.data";
 #endif
 #endif /* ANDROID_ENV */
 /* ATHENV */
