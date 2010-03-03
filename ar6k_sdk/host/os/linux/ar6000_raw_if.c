@@ -260,6 +260,7 @@ int ar6000_htc_raw_open(AR_SOFTC_T *ar)
 int ar6000_htc_raw_close(AR_SOFTC_T *ar)
 {
     A_PRINTF("ar6000_htc_raw_close called \n");
+    HIFMaskInterrupt(ar->arHifDevice);
     HTCStop(ar->arHtcTarget);
     
         /* reset the device */

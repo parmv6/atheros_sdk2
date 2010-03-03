@@ -447,7 +447,8 @@ hifIRQHandler(struct sdio_func *func)
     sdio_release_host(device->func);
     status = device->htcCallbacks.dsrHandler(device->htcCallbacks.context);
     sdio_claim_host(device->func);
-    AR_DEBUG_ASSERT(status == A_OK);
+	/* IRQ handler can be called before sdio intrs are disabled when ar6000_destroy happens */
+    /* AR_DEBUG_ASSERT(status == A_OK); */
     AR_DEBUG_PRINTF(ATH_DEBUG_TRACE, ("AR6000: -hifIRQHandler\n"));
 }
 

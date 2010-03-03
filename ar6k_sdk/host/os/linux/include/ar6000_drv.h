@@ -45,6 +45,11 @@
 #endif
 #include <linux/wireless.h>
 #include <linux/module.h>
+
+#ifdef CONFIG_HAS_EARLYSUSPEND	
+#include <linux/earlysuspend.h>
+#endif
+
 #include <asm/io.h>
 
 #include <a_config.h>
@@ -351,8 +356,20 @@ typedef struct ar6_softc {
     A_BOOL                  DTIMExpired; /* flag to indicate DTIM expired */
     A_UINT8                 intra_bss;   /* enable/disable intra bss data forward */
     A_BOOL                  bIsDestroyProgress; /* flag to indicate ar6k destroy is in progress */
+    A_BOOL                  bIsSuspendProgress; /* flag to indicate ar6k suspend is in progress */	
     A_TIMER                 disconnect_timer;
+#ifdef CONFIG_HAS_EARLYSUSPEND
+    struct early_suspend early_suspend;
+#endif
 } AR_SOFTC_T;
+/*
+#define POWER_MANAGEMENT_MODE_SLEEP
+*/
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	void ar6000_early_suspend(struct early_suspend *h);
+	void ar6000_late_resume(struct early_suspend *h);
+#endif
+
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
 /* Looks like we need this for 2.4 kernels */

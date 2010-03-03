@@ -1855,7 +1855,7 @@ ar6000_ioctl_siwpriv(struct net_device *dev,
                                            DEFAULT_SCAN_CTRL_FLAGS,
                                            0};
  
-    AR_DEBUG2_PRINTF("ar6000_ioctl_siwpriv: cmd=0x%x, %s %s \n", info->cmd,data->flags, data->value);
+    AR_DEBUG2_PRINTF("ar6000_ioctl_siwpriv: cmd=0x%x, %x %x \n", info->cmd,data->flags, data->value);
 
     if (strcasecmp((A_UCHAR *)data->value, "LINKSPEED") == 0)
     {

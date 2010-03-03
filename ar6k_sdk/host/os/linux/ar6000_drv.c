@@ -272,7 +272,11 @@ static void disconnect_timer_handler(unsigned long ptr);
  */
 static A_STATUS ar6000_avail_ev(void *context, void *hif_handle);
 
+static A_STATUS ar6000_resume(void *context);
+
 static A_STATUS ar6000_unavail_ev(void *context, void *hif_handle);
+
+static A_STATUS ar6000_suspend(void *context);
 
 static void ar6000_target_failure(void *Instance, A_STATUS Status);
 
@@ -576,6 +580,8 @@ ar6000_init_module(void)
     A_MEMZERO(&osdrvCallbacks,sizeof(osdrvCallbacks));
     osdrvCallbacks.deviceInsertedHandler = ar6000_avail_ev;
     osdrvCallbacks.deviceRemovedHandler = ar6000_unavail_ev;
+    osdrvCallbacks.deviceSuspendHandler = ar6000_suspend;
+    osdrvCallbacks.deviceResumeHandler = ar6000_resume;
 
 #ifdef DEBUG
     /* Set the debug flags if specified at load time */
@@ -863,6 +869,365 @@ static struct device ar6kfwdev = {
 #endif
 #endif /* FW_AUTOLOAD */
 
+
+static A_STATUS ar6000_connectservice(AR_SOFTC_T               *ar,
+                                      HTC_SERVICE_CONNECT_REQ  *pConnect,
+                                      char                     *pDesc);
+
+
+static A_STATUS
+ar6000_resume(void *context)
+{
+    AR_SOFTC_T *ar = (AR_SOFTC_T *)context;
+    A_STATUS    status = 0;
+
+#ifndef POWER_MANAGEMENT_MODE_SLEEP
+    A_UINT32 param;
+    HTC_INIT_INFO  htcInfo;
+#endif
+
+
+    AR_DEBUG_PRINTF("AR6000: ar6000_resume: name=%s hifdevice=0x%x, dev=0x%x (%d), ar=0x%x\n",
+                    ar->arNetDev->name, (A_UINT32)ar->arHifDevice, (A_UINT32)ar->arNetDev, ar->arDeviceIndex,
+                    (A_UINT32)ar);
+
+
+/* resume back from SLEEP mode */
+#ifdef POWER_MANAGEMENT_MODE_SLEEP
+
+
+    if (ar->arWmiReady == TRUE)
+    {
+        if (!bypasswmi)
+        {
+	    WMI_SET_HOST_SLEEP_MODE_CMD hostSleepMode;
+	    hostSleepMode.awake = TRUE;
+	    hostSleepMode.asleep = FALSE;
+           wmi_set_host_sleep_mode_cmd(ar->arWmi, &hostSleepMode);
+	    wmi_powermode_cmd(ar->arWmi, MAX_PERF_POWER);
+    	 }
+     }
+
+/* resume back from cut_pwr or deep_sleep (HOST_OFF) mode */
+#else
+
+    BMIInit();
+    {
+        struct bmi_target_info targ_info;
+
+        if (BMIGetTargetInfo(ar->arHifDevice, &targ_info) != A_OK) {
+            return A_ERROR;
+        }
+
+        ar->arVersion.target_ver = targ_info.target_ver;
+        ar->arTargetType = targ_info.target_type;
+
+            /* do any target-specific preparation that can be done through BMI */
+        if (ar6000_prepare_target(ar->arHifDevice,
+                                  targ_info.target_type,
+                                  targ_info.target_ver) != A_OK) {
+            return A_ERROR;
+        }
+
+    }
+
+    if (enableuartprint) {
+        param = 1;
+        if (BMIWriteMemory(ar->arHifDevice,
+                           HOST_INTEREST_ITEM_ADDRESS(ar, hi_serial_enable),
+                           (A_UCHAR *)&param,
+                           4)!= A_OK)
+        {
+             AR_DEBUG_PRINTF("BMIWriteMemory for enableuartprint failed \n");
+             return A_ERROR;
+        }
+        AR_DEBUG_PRINTF("Serial console prints enabled\n");
+    }
+
+    /* Tell target which HTC version it is used*/
+    param = HTC_PROTOCOL_VERSION;
+    if (BMIWriteMemory(ar->arHifDevice,
+                       HOST_INTEREST_ITEM_ADDRESS(ar, hi_app_host_interest),
+                       (A_UCHAR *)&param,
+                       4)!= A_OK)
+    {
+         AR_DEBUG_PRINTF("BMIWriteMemory for htc version failed \n");
+         return A_ERROR;
+    }
+
+#ifdef CONFIG_HOST_TCMD_SUPPORT
+    if(testmode) {
+        ar->arTargetMode = AR6000_TCMD_MODE;
+    }else {
+        ar->arTargetMode = AR6000_WLAN_MODE;
+    }
+#endif
+    if (enabletimerwar) {
+        A_UINT32 param;
+
+        if (BMIReadMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_option_flag),
+            (A_UCHAR *)&param,
+            4)!= A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIReadMemory for enabletimerwar failed \n");
+            return A_ERROR;
+        }
+
+        param |= HI_OPTION_TIMER_WAR;
+
+        if (BMIWriteMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_option_flag),
+            (A_UCHAR *)&param,
+            4) != A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIWriteMemory for enabletimerwar failed \n");
+            return A_ERROR;
+        }
+        AR_DEBUG_PRINTF("Timer WAR enabled\n");
+    }
+
+    /* set the firmware mode to STA/IBSS/AP */
+    {
+        A_UINT32 param;
+
+        if (BMIReadMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_option_flag),
+            (A_UCHAR *)&param,
+            4)!= A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIReadMemory for setting fwmode failed \n");
+            return A_ERROR;
+        }
+
+        param |= (fwmode << HI_OPTION_FW_MODE_SHIFT);
+
+        if (BMIWriteMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_option_flag),
+            (A_UCHAR *)&param,
+            4) != A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIWriteMemory for setting fwmode failed \n");
+            return A_ERROR;
+        }
+        AR_DEBUG_PRINTF("Firmware mode set\n");
+    }
+
+    if (processDot11Hdr) {
+        A_UINT32 param;
+
+        if (BMIReadMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_option_flag),
+            (A_UCHAR *)&param,
+            4)!= A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIReadMemory for processDot11Hdr failed \n");
+            return A_ERROR;
+        }
+
+        param |= HI_OPTION_RELAY_DOT11_HDR;
+
+        if (BMIWriteMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_option_flag),
+            (A_UCHAR *)&param,
+            4) != A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIWriteMemory for processDot11Hdr failed \n");
+            return A_ERROR;
+        }
+        AR_DEBUG_PRINTF("processDot11Hdr enabled\n");
+    }
+
+
+    // No need to reserve RAM space for patch as olca/dragon is flash based
+    if (ar->arTargetType == TARGET_TYPE_AR6001) {
+        param = 0;
+        if (BMIWriteMemory(ar->arHifDevice,
+            HOST_INTEREST_ITEM_ADDRESS(ar, hi_end_RAM_reserve_sz),
+            (A_UCHAR *)&param,
+            4) != A_OK)
+        {
+            AR_DEBUG_PRINTF("BMIWriteMemory for hi_end_RAM_reserve_sz failed \n");
+            return A_ERROR;
+        }
+    }
+
+
+        /* since BMIInit is called in the driver layer, we have to set the block
+         * size here for the target */
+
+    if (A_FAILED(ar6000_set_htc_params(ar->arHifDevice,
+                                       ar->arTargetType,
+                                       mbox_yield_limit,
+                                       0 /* use default number of control buffers */
+                                       ))) {
+        return A_ERROR;
+    }
+
+    A_MEMZERO(&htcInfo,sizeof(htcInfo));
+    htcInfo.pContext = ar;
+    htcInfo.TargetFailure = ar6000_target_failure;
+
+    ar->arHtcTarget = HTCCreate(ar->arHifDevice,&htcInfo);
+
+    if (ar->arHtcTarget == NULL) {
+        return A_ERROR;
+    }
+
+
+/* downloaf mac */
+
+#ifdef ANDROID_ENV
+    if (tgt_fw != NULL) {
+        A_UINT32 value, old_options, old_sleep;
+
+        /* temporarily disable system sleep */
+        value = 0;
+        BMIReadSOCRegister(ar->arHifDevice, 0x180c0, &value);
+        old_options = value;
+        value |= 0x08;
+        BMIWriteSOCRegister(ar->arHifDevice, 0x180c0, value);
+        value = 0;
+        BMIReadSOCRegister(ar->arHifDevice, 0x40c4, &value);
+        old_sleep = value;
+        value |= 0x01;
+        BMIWriteSOCRegister(ar->arHifDevice, 0x40c4, value);
+        printk("old options [%d] old sleep [%d]\n", old_options, old_sleep);
+
+        /* run at 40/44MHz by default */
+        value = 0;
+        BMIWriteSOCRegister(ar->arHifDevice, 0x4020, value);
+
+        /* use internal clock? */
+        BMIReadSOCRegister(ar->arHifDevice, 0x50047c, &value);
+        if (value == 0) {
+            printk("use internal clock\n");
+            value = 0x100000;
+            BMIWriteSOCRegister(ar->arHifDevice, 0x40e0, value);
+        }
+
+        /* eeprom */
+#ifdef FAKE_EEPROM_USED
+        printk("AR6000: download fake eeprom\n");
+        eeprom_ar6000_transfer(ar->arHifDevice, eeprom_data, NULL);
+#else
+        printk("AR6000: eeprom transfer\n");
+        firmware_transfer(ar->arHifDevice, eeprom_data, 0x502070, FALSE);
+        firmware_transfer(ar->arHifDevice, eeprom_bin, 0x5148f0, FALSE);
+        value = 1;
+        printk("AR6000: BMIExecute\n");
+        BMIExecute(ar->arHifDevice, 0x9148f0, &value);
+#endif
+        printk("AR6000: BMISetAppStart\n");
+        BMISetAppStart(ar->arHifDevice, 0x9148f0);
+
+        /* enable HI_OPTION_TIMER_WAR */
+        printk("AR6000: enable HI_OPTION_TIMER_WAR\n");
+        value = 0;
+        BMIReadSOCRegister(ar->arHifDevice, 0x500410, &value);
+        value |= 0x01;
+        BMIWriteSOCRegister(ar->arHifDevice, 0x500410, value);
+
+        /* fw */
+        printk("AR6000: firmware_transfer\n");
+        if ((tgt_fw[strlen(tgt_fw) - 3] == 'z')
+         && (tgt_fw[strlen(tgt_fw) - 2] == '7')
+         && (tgt_fw[strlen(tgt_fw) - 1] == '7')) {
+            firmware_transfer(ar->arHifDevice, tgt_fw, 0x502070, TRUE);
+    } else {
+            firmware_transfer(ar->arHifDevice, tgt_fw, 0x502070, FALSE);
+        }
+
+        /* WLAN patch DataSets */
+        firmware_transfer(ar->arHifDevice, tgt_patch, 0x52d8b0, FALSE);
+        BMIWriteSOCRegister(ar->arHifDevice, 0x500418, 0x52d8b0);
+
+        /* restore system sleep */
+        BMIWriteSOCRegister(ar->arHifDevice, 0x40c4, old_sleep);
+        BMIWriteSOCRegister(ar->arHifDevice, 0x180c0, old_options);
+
+        if (work_mode == 2) {
+            /* art mode */
+            BMIWriteSOCRegister(ar->arHifDevice, 0x500478, 26000000);
+            BMIWriteSOCRegister(ar->arHifDevice, 0x500458, 0x1);
+        } else {
+            /* normal WIFI or TCMD mode, done */
+            status = ar6000_init(ar->arNetDev);
+            if ( status!= A_OK ) {
+                printk("%s: ar6000_init failed, ret=%d\n", __FUNCTION__, status);
+            }
+        }
+    }
+#endif
+
+
+#endif // resume from CUT_PWR mode
+
+    if (ar->arWmiReady == TRUE)
+    {
+        if (!bypasswmi)
+        {
+		if (ar->arWlanState == WLAN_ENABLED) {
+		   static WMI_SCAN_PARAMS_CMD scParams = {0, 0, 0, 0, 0,
+			                                       WMI_SHORTSCANRATIO_DEFAULT,
+			                                       DEFAULT_SCAN_CTRL_FLAGS,
+			                                       0};
+
+		    AR_DEBUG_PRINTF("AR6000: ar6000_resume: Enable foreground scanning\n");
+			
+		    /* Enable foreground scanning */
+		    if (wmi_scanparams_cmd(ar->arWmi, scParams.fg_start_period,
+		                           scParams.fg_end_period,
+		                           scParams.bg_period,
+		                           scParams.minact_chdwell_time,
+		                           scParams.maxact_chdwell_time,
+		                           scParams.pas_chdwell_time,
+		                           scParams.shortScanRatio,
+		                           scParams.scanCtrlFlags,
+		                           scParams.max_dfsch_act_time,
+		                           scParams.maxact_scan_per_ssid) != A_OK)
+		    {
+		        return -EIO;
+		    }
+
+		    if (ar->arSsidLen > 0) {
+		        ar->arConnectPending = TRUE;
+
+			AR_DEBUG_PRINTF("AR6000: ar6000_resume: re-connect\n");
+
+		        if((ADHOC_NETWORK != ar->arNetworkType) &&
+		           (NONE_AUTH==ar->arAuthMode)          &&
+		           (WEP_CRYPT==ar->arPairwiseCrypto)) {
+		                ar6000_install_static_wep_keys(ar);
+		        }
+
+			 AR_DEBUG_PRINTF("Connect called with authmode %d dot11 auth %d"\
+			                        " PW crypto %d PW crypto Len %d GRP crypto %d"\
+			                        " GRP crypto Len %d\n",
+			                        ar->arAuthMode, ar->arDot11AuthMode,
+			                        ar->arPairwiseCrypto, ar->arPairwiseCryptoLen,
+			                        ar->arGroupCrypto, ar->arGroupCryptoLen);
+
+		        status = wmi_connect_cmd(ar->arWmi, ar->arNetworkType,
+			                                 ar->arDot11AuthMode, ar->arAuthMode,
+			                                 ar->arPairwiseCrypto, ar->arPairwiseCryptoLen,
+			                                 ar->arGroupCrypto,ar->arGroupCryptoLen,
+			                                 ar->arSsidLen, ar->arSsid,
+			                                 ar->arReqBssid, ar->arChannelHint,
+			                                 ar->arConnectCtrlFlags | CONNECT_IGNORE_WPAx_GROUP_CIPHER);				
+		    }
+		}
+        }
+	}
+
+    ar->bIsSuspendProgress = FALSE;
+    ar->bIsDestroyProgress = FALSE;
+    AR_DEBUG_PRINTF("AR6000: - ar6000_resume\n");
+
+    return status;
+}
+
+
 /*
  * HTC Event handlers
  */
@@ -937,6 +1302,7 @@ ar6000_avail_ev(void *context, void *hif_handle)
     init_waitqueue_head(&arEvent);
     sema_init(&ar->arSem, 1);
     ar->bIsDestroyProgress = FALSE;
+    ar->bIsSuspendProgress = FALSE;
 
 #ifdef ADAPTIVE_POWER_THROUGHPUT_CONTROL
     A_INIT_TIMER(&aptcTimer, aptcTimerHandler, ar);
@@ -1293,6 +1659,15 @@ ar6000_avail_ev(void *context, void *hif_handle)
     }
 #endif /* FW_AUTOLOAD */
 
+
+#ifdef CONFIG_HAS_EARLYSUSPEND
+       printk("AR6000: Register ar6k with early_suspend\n");
+	ar->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN;
+	ar->early_suspend.suspend = ar6000_early_suspend;
+	ar->early_suspend.resume = ar6000_late_resume;
+	register_early_suspend(&ar->early_suspend);
+#endif	
+
     return A_OK;
 }
 
@@ -1337,10 +1712,112 @@ ar6000_unavail_ev(void *context, void *hif_handle)
     AR_SOFTC_T *ar = (AR_SOFTC_T *)context;
         /* NULL out it's entry in the global list */
     ar6000_devices[ar->arDeviceIndex] = NULL;
+    ar->bIsSuspendProgress = FALSE;
     ar6000_destroy(ar->arNetDev, 1);
 
     return A_OK;
 }
+
+
+#ifdef CONFIG_HAS_EARLYSUSPEND
+
+void ar6000_early_suspend(struct early_suspend *h)
+{
+	AR_SOFTC_T *ar;
+
+       AR_DEBUG_PRINTF("AR6000:  ar6000_early_suspend...\n");
+	
+	ar = container_of(h, AR_SOFTC_T, early_suspend);
+
+	ar6000_suspend(ar);
+}
+
+void ar6000_late_resume(struct early_suspend *h)
+{
+	AR_SOFTC_T *ar;
+
+       AR_DEBUG_PRINTF("AR6000:  ar6000_late_resume....\n");
+	
+	ar = container_of(h, AR_SOFTC_T, early_suspend);
+	ar6000_resume(ar);
+}
+
+#endif
+
+
+
+
+
+/* ar6000_suspend similar to ar6000_destroy, but here we are not unloading ar6k module,
+   we want to resume from suspend, so dont release hif device,  dont clean netdevice, not required
+   to indicate wpa_supplicant about state change (wifi dc). As we prepare wifi driver and mac in
+   correct state (wifi connect) on resume without wpa_supplicant getting to know about it */
+
+static A_STATUS
+ar6000_suspend(void *context)
+{
+    AR_SOFTC_T *ar = (AR_SOFTC_T *)context;
+
+     AR_DEBUG_PRINTF("AR6000:  + ar6000_suspend \n");
+
+     ar->bIsSuspendProgress = TRUE;
+
+/* on suspend put wifi chip in sleep mode.
+     expected pwr consumption by ar6k2 chip - 0.619 mW in sleep mode.
+     */
+#ifdef POWER_MANAGEMENT_MODE_SLEEP
+
+    if (ar->arWmiReady == TRUE)
+    {
+        if (!bypasswmi)
+        {
+	    	WMI_SET_HOST_SLEEP_MODE_CMD hostSleepMode;
+
+		/* set this to bypass wpa_supplicant notification for dc event */
+    		ar->bIsDestroyProgress = TRUE;
+
+		/* Disconnect if connected, disable foreground scanning  */
+
+		AR6000_SPIN_LOCK(&ar->arLock, 0);
+		if (ar->arConnected == TRUE || ar->arConnectPending == TRUE) {
+		    AR6000_SPIN_UNLOCK(&ar->arLock, 0);
+		    wmi_disconnect_cmd(ar->arWmi);
+		} else {
+		    AR6000_SPIN_UNLOCK(&ar->arLock, 0);
+		}
+
+		if (wmi_scanparams_cmd(ar->arWmi, 0xFFFF, 0, 0, 0, 0, 0, 0, 0xFF, 0, 0) != A_OK)
+		{
+		    return -EIO;
+		}
+
+		/* put chip in REC_PWR mode */
+		wmi_powermode_cmd(ar->arWmi, REC_POWER);
+
+		/* put chip in sleep - low power mode */
+		hostSleepMode.awake = FALSE;
+		hostSleepMode.asleep = TRUE;
+		wmi_set_host_sleep_mode_cmd(ar->arWmi, &hostSleepMode);
+       }
+    }
+
+
+/* on suspend put wifi chip in deep_sleep/cut_pwr mode.
+     expected pwr consumption by ar6k2 chip - 0.076 mW in deep_sleep (HOST_OFF) mode, 
+     expected pwr consumption by ar6k2 chip - 0 or 0.01 mW in cut_pwr (CHIP_PWD) mode  
+     */
+#else
+
+    ar6000_destroy(ar->arNetDev, 0);
+
+#endif
+
+    AR_DEBUG_PRINTF("AR6000:  - ar6000_suspend \n");
+
+    return A_OK;
+}
+
+
 
 /*
  * We need to differentiate between the surprise and planned removal of the
@@ -1360,6 +1837,7 @@ static void
 ar6000_destroy(struct net_device *dev, unsigned int unregister)
 {
     AR_SOFTC_T *ar;
+    A_BOOL bIsSuspend = FALSE;
 
     AR_DEBUG_PRINTF("+ar6000_destroy \n");
 
@@ -1371,9 +1849,19 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
 
     ar->bIsDestroyProgress = TRUE;
 
-    if (down_interruptible(&ar->arSem)) {
-        AR_DEBUG_PRINTF("%s(): down_interruptible failed \n", __func__);
-        return;
+    if(ar->bIsSuspendProgress == TRUE)
+	bIsSuspend = TRUE;
+
+    if(bIsSuspend == FALSE)
+    {
+	 if (down_interruptible(&ar->arSem)) {
+	     AR_DEBUG_PRINTF("%s(): down_interruptible failed \n", __func__);
+	     return;
+	 }
+    
+#ifdef CONFIG_HAS_EARLYSUSPEND
+    	unregister_early_suspend(&ar->early_suspend);
+#endif
     }
 
     /* Stop the transmit queues */
@@ -1388,9 +1876,23 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
             {
                 AR_DEBUG_PRINTF("%s(): Disconnect\n", __func__);
                 AR6000_SPIN_LOCK(&ar->arLock, 0);
-                ar6000_init_profile_info(ar);
+	    	  if(bIsSuspend == FALSE)
+                	ar6000_init_profile_info(ar);
                 AR6000_SPIN_UNLOCK(&ar->arLock, 0);
                 wmi_disconnect_cmd(ar->arWmi);
+
+		  if(bIsSuspend == TRUE)
+		  {
+			if (down_interruptible(&ar->arSem)) {
+		    	AR_DEBUG_PRINTF("%s(): down_interruptible failed \n", __func__);
+		    	return;
+			}
+
+			if (wmi_scanparams_cmd(ar->arWmi, 0xFFFF, 0, 0, 0, 0, 0, 0, 0xFF, 0, 0) != A_OK)
+			{
+			    return;
+			}			
+		  }
             }
 
             ar6000_dbglog_get_debug_logs(ar);
@@ -1444,12 +1946,18 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
         AR_DEBUG_PRINTF(" Host does not want target reset. \n");
     }
 
+   if(bIsSuspend == FALSE)
+   {
     if (ar->arHifDevice != NULL) {
         /*release the device so we do not get called back on remove incase we
          * we're explicity destroyed by module unload */
+ 	 HIFMaskInterrupt(ar->arHifDevice);
         HIFReleaseDevice(ar->arHifDevice);
         HIFShutDownDevice(ar->arHifDevice);
     }
+   }
+   else
+ 	HIFMaskInterrupt(ar->arHifDevice);
 
        /* Done with cookies */
     ar6000_cookie_cleanup(ar);
@@ -1462,7 +1970,8 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
     memset(tx_post, 0, sizeof(tx_post));
     memset(tx_complete, 0, sizeof(tx_complete));
 
-
+   if(bIsSuspend == FALSE)
+  {
     /* Free up the device data structure */
     if( unregister )
         unregister_netdev(dev);
@@ -1471,6 +1980,7 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
 #else
     free_netdev(dev);
 #endif
+   }
 
     AR_DEBUG_PRINTF("-ar6000_destroy \n");
 }
@@ -3222,6 +3732,16 @@ ar6000_disconnect_event(AR_SOFTC_T *ar, A_UINT8 reason, A_UINT8 *bssid,
 {
     A_UINT8 i;
     unsigned long flags;
+
+/* do not indicate wpa_supplicant about dc event on suspend, 
+as on resume driver initiates reconnect */
+
+    if(ar->bIsDestroyProgress && ar->bIsSuspendProgress)
+    	{
+	       up(&ar->arSem);
+		return;
+    	}
+
 
     if(ar->arNetworkType & AP_NETWORK) {
         union iwreq_data wrqu;
