@@ -895,7 +895,6 @@ ar6000_resume(void *context)
 /* resume back from SLEEP mode */
 #ifdef POWER_MANAGEMENT_MODE_SLEEP
 
-
     if (ar->arWmiReady == TRUE)
     {
         if (!bypasswmi)
@@ -1158,38 +1157,12 @@ ar6000_resume(void *context)
             }
         }
     }
-#endif
 
-
-#endif // resume from CUT_PWR mode
 
     if (ar->arWmiReady == TRUE)
     {
         if (!bypasswmi)
         {
-		if (ar->arWlanState == WLAN_ENABLED) {
-		   static WMI_SCAN_PARAMS_CMD scParams = {0, 0, 0, 0, 0,
-			                                       WMI_SHORTSCANRATIO_DEFAULT,
-			                                       DEFAULT_SCAN_CTRL_FLAGS,
-			                                       0};
-
-		    AR_DEBUG_PRINTF("AR6000: ar6000_resume: Enable foreground scanning\n");
-			
-		    /* Enable foreground scanning */
-		    if (wmi_scanparams_cmd(ar->arWmi, scParams.fg_start_period,
-		                           scParams.fg_end_period,
-		                           scParams.bg_period,
-		                           scParams.minact_chdwell_time,
-		                           scParams.maxact_chdwell_time,
-		                           scParams.pas_chdwell_time,
-		                           scParams.shortScanRatio,
-		                           scParams.scanCtrlFlags,
-		                           scParams.max_dfsch_act_time,
-		                           scParams.maxact_scan_per_ssid) != A_OK)
-		    {
-		        return -EIO;
-		    }
-
 		    if (ar->arSsidLen > 0) {
 		        ar->arConnectPending = TRUE;
 
@@ -1216,12 +1189,44 @@ ar6000_resume(void *context)
 			                                 ar->arReqBssid, ar->arChannelHint,
 			                                 ar->arConnectCtrlFlags | CONNECT_IGNORE_WPAx_GROUP_CIPHER);				
 		    }
+        	}
+    	}
+	
+#endif
+
+
+#endif // resume from CUT_PWR mode
+
+    if (ar->arWmiReady == TRUE)
+    {
+        if (!bypasswmi)
+        {
+		if (ar->arWlanState == WLAN_ENABLED) {
+		   static WMI_SCAN_PARAMS_CMD scParams = {0, 0, 0, 0, 0,
+			                                       WMI_SHORTSCANRATIO_DEFAULT,
+			                                       DEFAULT_SCAN_CTRL_FLAGS,
+			                                       0};
+
+		    AR_DEBUG_PRINTF("AR6000: ar6000_resume: Enable foreground scanning\n");
+
+		    /* Enable foreground scanning */
+		    if (wmi_scanparams_cmd(ar->arWmi, scParams.fg_start_period,
+		                           scParams.fg_end_period,
+		                           scParams.bg_period,
+		                           scParams.minact_chdwell_time,
+		                           scParams.maxact_chdwell_time,
+		                           scParams.pas_chdwell_time,
+		                           scParams.shortScanRatio,
+		                           scParams.scanCtrlFlags,
+		                           scParams.max_dfsch_act_time,
+		                           scParams.maxact_scan_per_ssid) != A_OK)
+		    {
+		        return -EIO;
+		    }
 		}
         }
 	}
 
-    ar->bIsSuspendProgress = FALSE;
-    ar->bIsDestroyProgress = FALSE;
     AR_DEBUG_PRINTF("AR6000: - ar6000_resume\n");
 
     return status;
@@ -1773,19 +1778,7 @@ ar6000_suspend(void *context)
         {
 	    	WMI_SET_HOST_SLEEP_MODE_CMD hostSleepMode;
 
-		/* set this to bypass wpa_supplicant notification for dc event */
-    		ar->bIsDestroyProgress = TRUE;
-
-		/* Disconnect if connected, disable foreground scanning  */
-
-		AR6000_SPIN_LOCK(&ar->arLock, 0);
-		if (ar->arConnected == TRUE || ar->arConnectPending == TRUE) {
-		    AR6000_SPIN_UNLOCK(&ar->arLock, 0);
-		    wmi_disconnect_cmd(ar->arWmi);
-		} else {
-		    AR6000_SPIN_UNLOCK(&ar->arLock, 0);
-		}
-
+		/* disable foreground scanning  */
 		if (wmi_scanparams_cmd(ar->arWmi, 0xFFFF, 0, 0, 0, 0, 0, 0, 0xFF, 0, 0) != A_OK)
 		{
 		    return -EIO;
@@ -1811,6 +1804,8 @@ ar6000_suspend(void *context)
     ar6000_destroy(ar->arNetDev, 0);
 
 #endif
+
+    ar->bIsSuspendProgress = FALSE;
 
     AR_DEBUG_PRINTF("AR6000:  - ar6000_suspend \n");
 
@@ -1848,6 +1843,7 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
     }
 
     ar->bIsDestroyProgress = TRUE;
+    HIFMaskInterrupt(ar->arHifDevice);
 
     if(ar->bIsSuspendProgress == TRUE)
 	bIsSuspend = TRUE;
@@ -1951,16 +1947,14 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
     if (ar->arHifDevice != NULL) {
         /*release the device so we do not get called back on remove incase we
          * we're explicity destroyed by module unload */
- 	 HIFMaskInterrupt(ar->arHifDevice);
         HIFReleaseDevice(ar->arHifDevice);
         HIFShutDownDevice(ar->arHifDevice);
     }
    }
-   else
- 	HIFMaskInterrupt(ar->arHifDevice);
 
        /* Done with cookies */
     ar6000_cookie_cleanup(ar);
+    ar->bIsDestroyProgress = FALSE;
 
     /* Cleanup BMI */
     BMIInit();
@@ -1981,6 +1975,7 @@ ar6000_destroy(struct net_device *dev, unsigned int unregister)
     free_netdev(dev);
 #endif
    }
+
 
     AR_DEBUG_PRINTF("-ar6000_destroy \n");
 }
@@ -3736,7 +3731,7 @@ ar6000_disconnect_event(AR_SOFTC_T *ar, A_UINT8 reason, A_UINT8 *bssid,
 /* do not indicate wpa_supplicant about dc event on suspend, 
 as on resume driver initiates reconnect */
 
-    if(ar->bIsDestroyProgress && ar->bIsSuspendProgress)
+    if(ar->bIsDestroyProgress)
     	{
 	       up(&ar->arSem);
 		return;

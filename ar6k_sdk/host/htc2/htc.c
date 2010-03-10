@@ -340,7 +340,6 @@ A_STATUS HTCStart(HTC_HANDLE HTCHandle)
         status = DevUnmaskInterrupts(&target->Device);
 
         if (A_FAILED(status)) {
- 	     DevMaskInterrupts(&target->Device);
             HTCStop(target);
         }
 
@@ -386,7 +385,7 @@ void HTCStop(HTC_HANDLE HTCHandle)
     
         /* Masking interrupts is a synchronous operation, when this function returns
          * all pending HIF I/O has completed, we can safely flush the queues */
-    /*DevMaskInterrupts(&target->Device);*/
+    DevMaskInterrupts(&target->Device);
 
         /* flush all send packets */
     HTCFlushSendPkts(target);

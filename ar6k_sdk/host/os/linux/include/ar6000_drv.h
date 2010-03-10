@@ -362,9 +362,9 @@ typedef struct ar6_softc {
     struct early_suspend early_suspend;
 #endif
 } AR_SOFTC_T;
-/*
+
 #define POWER_MANAGEMENT_MODE_SLEEP
-*/
+
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	void ar6000_early_suspend(struct early_suspend *h);
 	void ar6000_late_resume(struct early_suspend *h);
