@@ -325,14 +325,6 @@ AdjustBtControlAction(ATHBT_FILTER_INFO      *pInfo,
                     pParamsCmd->info.a2dpParams.a2dpWlanUsageLimit = 30;
                     pParamsCmd->info.a2dpParams.a2dpBurstCntMin = 3;
                     pParamsCmd->info.a2dpParams.a2dpDataRespTimeout =20;
-                    /*
-                    pParamsCmd->info.a2dpParams.a2dpOptFlags =0;
-                    pParamsCmd->info.a2dpParams.p2lrpOptModeBound =0;
-                    pParamsCmd->info.a2dpParams.p2lrpNonOptModeBound =0;
-                    pParamsCmd->info.a2dpParams.reserved16 =0;
-                    pParamsCmd->info.a2dpParams.isCoLocatedBtRoleMaster =0;
-                    pParamsCmd->info.a2dpParams.reserved8 =0;					
-                   */			
                  /* pParamsCmd->info.a2dpParams.p2lrpOptModeBound=7;
                     pParamsCmd->info.a2dpParams.p2lrpNonOptModeBound=9;
                     BT_A2DP_SET_DEFAULT_OVERRIDE(a2dpOptFlags);*/
@@ -515,14 +507,14 @@ BtStateActionProper(ATHBT_FILTER_INFO *pInfo,
                  &pBtControlAction->ControlAction, 
                  sizeof(pActionMsg->ControlAction));
  
-       /* When is it ever set to blocking TODO */
+        /* When is it ever set to blocking TODO */
         if (pActionMsg->Blocking) {
             /* this is the action to wait on */
             hWait = &pActionMsg->hWaitEvent;
             A_COND_RESET(hWait);
         }
-       
-       /* allow for adjustments to the control action beyond the defaults */
+        
+        /* allow for adjustments to the control action beyond the defaults */
         AdjustBtControlAction(pInfo, pActionMsg);
                 
         /* queue action */
