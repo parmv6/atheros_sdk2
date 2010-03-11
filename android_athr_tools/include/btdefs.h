@@ -23,6 +23,8 @@
 #ifndef BTDEFS_H_
 #define BTDEFS_H_
 
+#include "osapi_linux.h"
+
 #define OGF_SHIFT                   10
 #define OGF_MASK                    0xFC
 
@@ -106,7 +108,7 @@
 
 #define GETUINT16(p)(((A_UINT16)((p)[1])) << 8) | ((A_UINT16)((p)[0]))
     
-#include "athstartpack.h"
+//#include "athstartpack.h"
 
 typedef PREPACK struct _ACL_HEADER{
     A_UINT16 HANDLE;
@@ -134,7 +136,7 @@ typedef PREPACK struct _AVDTP_HEADER{
     A_UINT8  CMD_ID;
 } POSTPACK AVDTP_HEADER, *PAVDTP_HEADER;
 
-#include "athendpack.h"
+//#include "athendpack.h"
 
 #endif /*BTDEFS_H_*/
 

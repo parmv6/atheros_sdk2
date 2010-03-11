@@ -76,6 +76,6 @@
 #define FLASH_IS_PRESENT_TARGADDR       HOST_INTEREST_FLASH_IS_PRESENT_ADDR
 
 /* override REV2 ROM's app start address */
-#define AR6002_REV2_APP_START_OVERRIDE  0x9140f0
+#define AR6002_REV2_APP_START_OVERRIDE  0x9148f0
 
 #endif /* __ADDRS_H__ */

@@ -19,7 +19,8 @@
 #ifndef _NET80211_IEEE80211_H_
 #define _NET80211_IEEE80211_H_
 
-#include "athstartpack.h"
+//#include "athstartpack.h"
+#include "osapi_linux.h"
 
 /*
  * 802.11 protocol definitions.
@@ -43,6 +44,9 @@
 
 #define IEEE80211_CRC_LEN           4
 
+#ifdef WAPI_ENABLE
+#define IEEE80211_WAPI_EXTIVLEN      10   /* extended IV length */
+#endif /* WAPI ENABLE */
 
 
 #define IEEE80211_ADDR_LEN  6       /* size of 802.11 address */
@@ -230,6 +234,9 @@ enum {
     IEEE80211_ELEMID_ERP        = 42,
     IEEE80211_ELEMID_RSN        = 48,
     IEEE80211_ELEMID_XRATES     = 50,
+#ifdef WAPI_ENABLE
+    IEEE80211_ELEMID_WAPI       = 68,
+#endif
     IEEE80211_ELEMID_TPC        = 150,
     IEEE80211_ELEMID_CCKM       = 156,
     IEEE80211_ELEMID_VENDOR     = 221,  /* vendor private */
@@ -389,6 +396,6 @@ enum ieee80211_authmode {
 
 #define IEEE80211_PS_MAX_QUEUE    50 /*Maximum no of buffers that can be queues for PS*/
 
-#include "athendpack.h"
+//#include "athendpack.h"
 
 #endif /* _NET80211_IEEE80211_H_ */

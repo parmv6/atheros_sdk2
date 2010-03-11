@@ -32,11 +32,14 @@
 #ifndef _WMI_H_
 #define _WMI_H_
 
-#ifndef ATH_TARGET
-#include "athstartpack.h"
-#endif
+//#ifndef ATH_TARGET
+//#include "athstartpack.h"
+//#endif
 
-#include "wmix.h"
+//#include "wmix.h"
+
+#include "athtypes_linux.h"
+#include "osapi_linux.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -288,17 +291,24 @@ typedef enum {
     WEP_CRYPT           = 0x02,
     TKIP_CRYPT          = 0x03,
     AES_CRYPT           = 0x04,
+#ifdef WAPI_ENABLE
+    WAPI_CRYPT          = 0x05,
+#endif /* WAPI_ENABLE */
 } CRYPTO_TYPE;
 
-
 #define WMI_MIN_CRYPTO_TYPE NONE_CRYPT
+#ifndef WAPI_ENABLE
 #define WMI_MAX_CRYPTO_TYPE (AES_CRYPT + 1)
-
-
+#else
+#define WMI_MAX_CRYPTO_TYPE (WAPI_CRYPT + 1)
+#endif /* WAPI_ENABLE */
 
 #define WMI_MIN_KEY_INDEX   0
+#ifndef WAPI_ENABLE
 #define WMI_MAX_KEY_INDEX   3
-
+#else
+#define WMI_MAX_KEY_INDEX   7 /* wapi grpKey 0-3, prwKey 4-7 */
+#endif
 
 #define WMI_MAX_KEY_LEN     32
 
@@ -354,6 +364,9 @@ typedef enum {
  */
 #define KEY_OP_INIT_TSC       0x01
 #define KEY_OP_INIT_RSC       0x02
+#ifdef WAPI_ENABLE
+#define KEY_OP_INIT_WAPIPN    0x10
+#endif
 
 #define KEY_OP_INIT_VAL     0x03     /* Default Initialise the TSC & RSC */
 #define KEY_OP_VALID_MASK   0x03
@@ -2230,9 +2243,9 @@ typedef PREPACK struct {
  * End of AP mode definitions
  */
 
-#ifndef ATH_TARGET
-#include "athendpack.h"
-#endif
+//#ifndef ATH_TARGET
+//#include "athendpack.h"
+//#endif
 
 #ifdef __cplusplus
 }

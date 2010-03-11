@@ -21,7 +21,7 @@
  * Bluetooth Filter Main Routine
  *
  */
-static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/android/athbtfilter/abtfilt_main.c#1 $";
+static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/athbtfilter/bluez/abtfilt_main.c#3 $";
 
 #include "abtfilt_int.h"
 

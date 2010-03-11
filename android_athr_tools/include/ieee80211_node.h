@@ -22,28 +22,14 @@
 /*
  * Node locking definitions.
  */
-
-#ifdef REXOS
-#define IEEE80211_NODE_LOCK_INIT(_nt)   A_MUTEX_INIT_REX(&(_nt)->nt_nodelock)
-
-#define IEEE80211_NODE_LOCK(_nt)        A_MUTEX_LOCK_REX(&(_nt)->nt_nodelock)
-#define IEEE80211_NODE_UNLOCK(_nt)      A_MUTEX_UNLOCK_REX(&(_nt)->nt_nodelock)
-#define IEEE80211_NODE_LOCK_BH(_nt)     A_MUTEX_LOCK_REX(&(_nt)->nt_nodelock)
-#define IEEE80211_NODE_UNLOCK_BH(_nt)   A_MUTEX_UNLOCK_REX(&(_nt)->nt_nodelock)
-
-#else
-
 #define IEEE80211_NODE_LOCK_INIT(_nt)   A_MUTEX_INIT(&(_nt)->nt_nodelock)
-
+#define IEEE80211_NODE_LOCK_DESTROY(_nt) if (A_IS_MUTEX_VALID(&(_nt)->nt_nodelock)) { \
+                                               A_MUTEX_DELETE(&(_nt)->nt_nodelock); }
+       
 #define IEEE80211_NODE_LOCK(_nt)        A_MUTEX_LOCK(&(_nt)->nt_nodelock)
 #define IEEE80211_NODE_UNLOCK(_nt)      A_MUTEX_UNLOCK(&(_nt)->nt_nodelock)
 #define IEEE80211_NODE_LOCK_BH(_nt)     A_MUTEX_LOCK(&(_nt)->nt_nodelock)
 #define IEEE80211_NODE_UNLOCK_BH(_nt)   A_MUTEX_UNLOCK(&(_nt)->nt_nodelock)
-
-#endif
-
-#define IEEE80211_NODE_LOCK_DESTROY(_nt) if (A_IS_MUTEX_VALID(&(_nt)->nt_nodelock)) { \
-                                               A_MUTEX_DELETE(&(_nt)->nt_nodelock); }
 #define IEEE80211_NODE_LOCK_ASSERT(_nt)
 
 /*

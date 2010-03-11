@@ -20,6 +20,11 @@
 #ifndef _ATHDRV_LINUX_H
 #define _ATHDRV_LINUX_H
 
+#define ATH_MAC_LEN			6
+#define CONFIG_HOST_TCMD_SUPPORT 	1
+
+#include "athtypes_linux.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

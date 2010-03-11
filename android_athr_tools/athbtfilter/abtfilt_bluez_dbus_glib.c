@@ -21,7 +21,7 @@
  * Bluetooth Filter - BT module
  *
  */
-static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/android/athbtfilter/abtfilt_bluez_dbus_glib.c#1 $";
+static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/athbtfilter/bluez/abtfilt_bluez_dbus_glib.c#1 $";
 
 #include "abtfilt_bluez_dbus_glib.h"
 

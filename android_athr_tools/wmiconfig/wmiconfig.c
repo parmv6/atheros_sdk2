@@ -17,7 +17,7 @@
  * 
  *
  */
-static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/android/wmiconfig/wmiconfig.c#1 $";
+static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/wmiconfig/wmiconfig.c#10 $";
 
 #include <sys/types.h>
 #include <sys/file.h>

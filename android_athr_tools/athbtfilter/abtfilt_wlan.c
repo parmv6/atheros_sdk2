@@ -21,7 +21,7 @@
  * Bluetooth Filter - WLAN module
  *
  */
-static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/android/athbtfilter/abtfilt_wlan.c#1 $";
+static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/athbtfilter/bluez/abtfilt_wlan.c#3 $";
 
 #include "abtfilt_int.h"
 
@@ -126,7 +126,7 @@ Abf_WlanDispatchIO(ATHBT_FILTER_INFO *pInfo, unsigned long int req,
         ethIf = pAbfWlanInfo->IfName;
     }
 #ifdef ANDROID
-    ethIf = "athwlan0";
+    ethIf = "wlan0";
 #endif
     strcpy(ifname, ethIf);
 

@@ -21,6 +21,8 @@
 #ifndef _IEEE80211_IOCTL_H_
 #define _IEEE80211_IOCTL_H_
 
+#include "wmi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -20,7 +20,7 @@
  * Bluetooth Filter Front End
  *
  */
-static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/android/athbtfilter/abtfilt_core.c#1 $";
+static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/olca2.2/host/tools/athbtfilter/bluez/abtfilt_core.c#9 $";
 
 #include "abtfilt_int.h"
 
@@ -290,9 +290,11 @@ AdjustBtControlAction(ATHBT_FILTER_INFO      *pInfo,
                 break;
             }
              /*Role =0 is Master, Role =1, is slave */
+#ifndef DISABLE_MASTER_MODE
             if(pInfo->A2DPConnection_Role == 0) {
                 pParamsCmd->info.a2dpParams.isCoLocatedBtRoleMaster = 1;
             }else {
+#endif
                 pParamsCmd->info.a2dpParams.isCoLocatedBtRoleMaster = 0;
                 /* workaround for local BT radio that disables EDR
                  * rates when operating as a slave. We downgrade
@@ -300,7 +302,9 @@ AdjustBtControlAction(ATHBT_FILTER_INFO      *pInfo,
                  if(btWarDowngradeLmp()){
                     pInfo->A2DPConnection_LMPVersion = 2;
                  }
+#ifndef DISABLE_MASTER_MODE
             }
+#endif
 
             switch (pInfo->A2DPConnection_LMPVersion) {
                 case 0: // 1.0
@@ -410,6 +414,8 @@ AdjustBtControlAction(ATHBT_FILTER_INFO      *pInfo,
                     scoOptFlags |= BT_SCO_ALLOW_CLOSE_RANGE_OPT;
                     A_DEBUG(("     eSCO - 3-EV5\r\n"));
                 }
+                
+                scoOptFlags = 0;
 
                 /* account for RX/TX */
                 scoSlots *= 2;

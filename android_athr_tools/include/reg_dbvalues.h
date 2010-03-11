@@ -211,7 +211,7 @@ enum EnumRd {
     APL7_FCCA   = 0x5C,
     APL8_WORLD  = 0x5D,
     APL9_WORLD  = 0x5E,
-    APL10_WORLD = 0x5F,
+
 
     MKK5_MKKA   = 0x99, /* This is a temporary value. MG and DQ have to give official one */
     MKK5_FCCA   = 0x9A, /* This is a temporary value. MG and DQ have to give official one */
@@ -253,7 +253,6 @@ enum EnumRd {
     APL7        = 0x0750,   /* Taiwan */
     APL8        = 0x0850,   /* Malaysia */
     APL9        = 0x0950,   /* Korea - Before 11/2007.  Now used only by APs */
-    APL10       = 0x1050,   /* Korea ROC south - After 11/2007. For STAs only*/
 
     ETSI1       = 0x0130,   /* Europe & others */
     ETSI2       = 0x0230,   /* Europe & others */

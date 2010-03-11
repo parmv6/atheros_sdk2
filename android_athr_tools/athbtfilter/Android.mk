@@ -24,7 +24,7 @@ LOCAL_C_INCLUDES := \
 	$(call include-path-for, bluez-libs)
 
 LOCAL_CFLAGS+= \
-	-DDBUS_COMPILATION
+	-DDBUS_COMPILATION -DDISABLE_MASTER_MODE -DABF_DEBUG
 
 
 LOCAL_MODULE := abtfilt

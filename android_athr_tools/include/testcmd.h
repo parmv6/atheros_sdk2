@@ -20,6 +20,8 @@
 #ifndef  TESTCMD_H_
 #define  TESTCMD_H_
 
+#include "osapi_linux.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
