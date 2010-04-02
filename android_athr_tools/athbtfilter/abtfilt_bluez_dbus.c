@@ -1048,6 +1048,8 @@ static A_STATUS ProcessDBusMessage(ABF_BT_INFO *pAbfBtInfo, DBusMessage *Msg)
                 break;
             }
 
+            dbus_message_iter_get_arg_type(&msgiter);
+/*
             if (dbus_message_iter_get_arg_type(&msgiter) != DBUS_TYPE_STRING) {
                  A_ERR("[%s] event: %d (if:%s , sig: %s) expecting a string argument !\n",
                         __FUNCTION__, i, pNotificationConfig->interface,
@@ -1055,7 +1057,7 @@ static A_STATUS ProcessDBusMessage(ABF_BT_INFO *pAbfBtInfo, DBusMessage *Msg)
                 break;
 
             }
-
+*/
             dbus_message_iter_get_basic(&msgiter, &argString);
                 /* call string arg handler */
             pAbfBtInfo->SignalHandlers[i](argString, pAbfBtInfo);

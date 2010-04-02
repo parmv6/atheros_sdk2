@@ -312,7 +312,7 @@ AdjustBtControlAction(ATHBT_FILTER_INFO      *pInfo,
                 case 2: // 1.2
                     pParamsCmd->info.a2dpParams.a2dpWlanUsageLimit = 30;
                     pParamsCmd->info.a2dpParams.a2dpBurstCntMin = 3;
-                    pParamsCmd->info.a2dpParams.a2dpDataRespTimeout =10;
+                    pParamsCmd->info.a2dpParams.a2dpDataRespTimeout =20;
                     break;
                 case 3: // 2.0
                 case 4: // 2.1
