@@ -1232,6 +1232,23 @@ ar6000_resume(void *context)
     return status;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
+static const struct net_device_ops ar6000_nobmi_netops = {
+    .ndo_init = ar6000_init,
+    .ndo_open = ar6000_open,
+    .ndo_stop = ar6000_close,
+    .ndo_get_stats = ar6000_get_stats,
+    .ndo_do_ioctl = ar6000_ioctl,
+    .ndo_start_xmit = ar6000_data_tx,
+};
+static const struct net_device_ops ar6000_bmi_netops = {
+    .ndo_open = ar6000_open,
+    .ndo_stop = ar6000_close,
+    .ndo_get_stats = ar6000_get_stats,
+    .ndo_do_ioctl = ar6000_ioctl,
+    .ndo_start_xmit = ar6000_data_tx,
+};
+#endif
 
 /*
  * HTC Event handlers
@@ -1495,6 +1512,7 @@ ar6000_avail_ev(void *context, void *hif_handle)
     spin_lock_init(&ar->arLock);
 
     /* Don't install the init function if BMI is requested */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31)
     if(!bmienable)
     {
         dev->init = ar6000_init;
@@ -1509,6 +1527,14 @@ ar6000_avail_ev(void *context, void *hif_handle)
 
     /* dev->tx_timeout = ar6000_tx_timeout; */
     dev->do_ioctl = &ar6000_ioctl;
+#else
+    if (bmienable) {
+        AR_DEBUG_PRINTF(" BMI enabled \n");
+        dev->netdev_ops = &ar6000_bmi_netops;
+    } else {
+        dev->netdev_ops = &ar6000_nobmi_netops;
+    }
+#endif
     dev->watchdog_timeo = AR6000_TX_TIMEOUT;
     dev->wireless_handlers = &ath_iw_handler_def;
 
