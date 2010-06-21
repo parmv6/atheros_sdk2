@@ -1815,28 +1815,28 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)filterCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SETBSSFILTER, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_POWER_MODE:
         ifr.ifr_data = (void *)pwrCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SETPWR, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_PM_PARAMS:
         ifr.ifr_data = (void *)pmParamCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_PMPARAMS, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_IBSS_PM_CAPS:
         ifr.ifr_data = (void *)adhocPmCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_IBSS_PM_CAPS, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_ERROR_DETECTION:
@@ -1844,7 +1844,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_HB_CHALLENGE_RESP:
@@ -1852,7 +1852,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
 #ifdef USER_KEYS
@@ -1863,7 +1863,7 @@ main (int argc, char **argv)
 
             if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
             {
-                fprintf(stderr, ifr.ifr_name);
+                fprintf(stderr, "%s\n", ifr.ifr_name);
             }
 
             break;
@@ -1884,7 +1884,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)sParamCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SETSCAN, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_VERSION:
@@ -1895,7 +1895,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)revinfo;
         if (ioctl(s, AR6000_IOCTL_WMI_GETREV, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         printf("Driver Rev = 0x%x(%u.%u.%u.%u), ROM Rev = 0x%x(%u.%u.%u.%u), "
                "Firmware Rev = 0x%x(%u.%u.%u.%u)\n",
@@ -1921,14 +1921,14 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)listenCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SETLISTENINT, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_BMISS_TIME:
         ifr.ifr_data = (void *)bmissCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_BMISS_TIME, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_RSSI_THRESHOLDS:
@@ -1936,14 +1936,14 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_SNR_THRESHOLDS:
         ifr.ifr_data = (void *)snrThresholdParam;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_SNRTHRESHOLD, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_CLR_RSSISNR:
@@ -1951,7 +1951,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_LQ_THRESHOLDS:
@@ -1959,7 +1959,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_CHANNEL:
@@ -2008,18 +2008,18 @@ main (int argc, char **argv)
  
         if (ioctl(s, AR6000_IOCTL_WMI_SET_CHANNELPARAMS, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_SSID:
         if (index > MAX_PROBED_SSID_INDEX) {
             printf("num option for ssid command too large\n");
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
             break;
         }
         if (strlen((char *)ssid) > sizeof (ssidCmd->ssid)) {
             printf("ssid name too large\n");
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
             break;
         }
         ssidCmd->entryIndex = index;
@@ -2037,7 +2037,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)ssidCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_PROBEDSSID, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_BADAP:
@@ -2050,7 +2050,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)badApCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_BADAP, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_CREATE_QOS:
@@ -2114,7 +2114,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)crePStreamCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_CREATE_QOS, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_TARGET_STATS:
@@ -2127,7 +2127,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)&tgtStatsCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_GET_TARGET_STATS, &ifr) < 0)
         {
-           fprintf(stderr, ifr.ifr_name);
+           fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         printTargetStats(&(tgtStatsCmd.targetStats));
         break;
@@ -2135,7 +2135,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)pBitMask;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_ERROR_REPORT_BITMASK, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_DELETE_QOS:
@@ -2144,7 +2144,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)delPStreamCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_DELETE_QOS, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_QOS_QUEUE:
@@ -2160,7 +2160,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)getQosQueueCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_GET_QOS_QUEUE, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
 
         printf("Active TSIDs \n");
@@ -2175,7 +2175,7 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)ieInfo;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_ASSOC_INFO, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_AC_PARAMS:
@@ -2191,14 +2191,14 @@ main (int argc, char **argv)
         ifr.ifr_data = (void *)acParamsCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_ACCESS_PARAMS, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_DISC_TIMEOUT:
         ifr.ifr_data = (void *)discCmd;
         if (ioctl(s, AR6000_IOCTL_WMI_SET_DISC_TIMEOUT, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
      case WMI_SET_ADHOC_BSSID:
@@ -2207,7 +2207,7 @@ main (int argc, char **argv)
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
             printf("fail to set adhoc bssid \n");
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_OPT_MODE:
@@ -2215,7 +2215,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_OPT_SEND_FRAME:
@@ -2223,7 +2223,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_BEACON_INT:
@@ -2231,7 +2231,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_VOICE_PKT_SIZE:
@@ -2239,7 +2239,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_MAX_SP:
@@ -2247,7 +2247,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_ROAM_TBL:
@@ -2255,7 +2255,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_ROAM_CTRL:
@@ -2263,7 +2263,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_POWERSAVE_TIMERS:
@@ -2271,7 +2271,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_POWER_MODE:
@@ -2279,7 +2279,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         printf("Power mode is %s\n",
                (getPowerMode->powerMode == MAX_PERF_POWER) ? "maxperf" : "rec");
@@ -2289,7 +2289,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_ROAM_DATA:
@@ -2297,7 +2297,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_BT_STATUS:
@@ -2305,7 +2305,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_BT_PARAMS:
@@ -2313,7 +2313,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;   
     case WMI_SET_RETRYLIMITS:
@@ -2321,14 +2321,14 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_START_SCAN:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_STARTSCAN;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_FIX_RATES:
@@ -2351,14 +2351,14 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_FIX_RATES:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_GETFIXRATES;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         } else {
             int i;
             printf("Fix rate set index:");
@@ -2377,7 +2377,7 @@ main (int argc, char **argv)
         index--;
         setAuthMode->mode = atoi(argv[index]);
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_REASSOC_MODE:
@@ -2387,42 +2387,42 @@ main (int argc, char **argv)
         index--;
         setReassocMode->mode = atoi(argv[index]);
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_LPREAMBLE:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_LPREAMBLE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_RTS:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_RTS;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_WMM:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_WMM;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_TXOP:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_TXOP;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case DIAG_READ:
         ((int *)buf)[0] = AR6000_XIOCTL_DIAG_READ;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         printf("diagdata: 0x%x\n", *diagdata);
         break;
@@ -2430,7 +2430,7 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_DIAG_WRITE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_RD:
@@ -2438,7 +2438,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         else
         {
@@ -2457,7 +2457,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_DEL_MCAST_FILTER:
@@ -2465,7 +2465,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;	
     case WMI_SET_KEEPALIVE:
@@ -2475,14 +2475,14 @@ main (int argc, char **argv)
         index--;
         setKeepAlive->keepaliveInterval = atoi(argv[index]);
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_KEEPALIVE:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_GET_KEEPALIVE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         printf("Keepalive interval is %d secs and AP is %s\n",
                getKeepAlive->keepaliveInterval, (getKeepAlive->configured ?
@@ -2492,70 +2492,70 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_APPIE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_MGMT_FRM_RX_FILTER:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_MGMT_FRM_RX_FILTER;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_DBGLOG_CFG_MODULE:
         ((int *)buf)[0] = AR6000_XIOCTL_DBGLOG_CFG_MODULE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_DBGLOG_GET_DEBUG_LOGS:
         ((int *)buf)[0] = AR6000_XIOCTL_DBGLOG_GET_DEBUG_LOGS;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_IP:
         ((int *)buf)[0] = AR6000_XIOCTL_SET_IP;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
      case WMI_SET_HOST_SLEEP_MODE:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_HOST_SLEEP_MODE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_WOW_MODE:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_WOW_MODE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_ADD_WOW_PATTERN:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_ADD_WOW_PATTERN;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_DEL_WOW_PATTERN:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_DEL_WOW_PATTERN;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_GET_WOW_LIST:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_GET_WOW_LIST;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case DIAG_DUMP_CHIP_MEM:
@@ -2568,7 +2568,7 @@ main (int argc, char **argv)
                 ((int *)buf)[0] = AR6000_XIOCTL_DIAG_READ;
                 ifr.ifr_data = buf;
                 if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-                    fprintf(stderr, ifr.ifr_name);
+                    fprintf(stderr, "%s\n", ifr.ifr_name);
                 }
                 printf("0x%04x:0x%04x\n", *diagaddr, *diagdata);
             }
@@ -2580,21 +2580,21 @@ main (int argc, char **argv)
         index = optind - 1;
         *connectCtrlFlags = strtoul(argv[index], NULL, 0);
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case DUMP_HTC_CREDITS:        
         ((int *)buf)[0] = AR6000_XIOCTL_DUMP_HTC_CREDIT_STATE;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_AKMP_INFO:
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_AKMP_PARAMS;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_PMKID_LIST:
@@ -2602,7 +2602,7 @@ main (int argc, char **argv)
             ((int *)buf)[0] = AR6000_XIOCTL_WMI_SET_PMKID_LIST;
             ifr.ifr_data = buf;
             if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-                fprintf(stderr, ifr.ifr_name);
+                fprintf(stderr, "%s\n", ifr.ifr_name);
             }
         } else {
             printf("No PMKIDs entered\n");
@@ -2612,7 +2612,7 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_WMI_GET_PMKID_LIST;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_SET_BSS_PMKID_INFO:
@@ -2620,7 +2620,7 @@ main (int argc, char **argv)
         iwr.u.data.length = sizeof(*pi_cmd);
         if (ioctl(s, IEEE80211_IOCTL_ADDPMKID, &iwr) < 0) {
             printf("ADDPMKID IOCTL Error\n");
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_ABORT_SCAN:
@@ -2628,7 +2628,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_TARGET_EVENT_REPORT:
@@ -2636,7 +2636,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_GET_STA_LIST:
@@ -2646,7 +2646,7 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_AP_GET_STA_LIST;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         pGetSta = (ap_get_sta_t *)buf;
         printf("-------- STA List -----------\n");
@@ -2671,21 +2671,21 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_AP_HIDDEN_SSID;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_SET_NUM_STA:
         ((int *)buf)[0] = AR6000_XIOCTL_AP_SET_NUM_STA;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_ACL_POLICY:
         ((int *)buf)[0] = AR6000_XIOCTL_AP_SET_ACL_POLICY;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_ACL_MAC_LIST1:
@@ -2693,7 +2693,7 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_AP_SET_ACL_MAC;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_GET_ACL_LIST:
@@ -2703,7 +2703,7 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_AP_GET_ACL_LIST;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         pGetAcl = (WMI_AP_ACL *)buf;
         printf("----------------------------\n");
@@ -2726,35 +2726,35 @@ main (int argc, char **argv)
         ((int *)buf)[0] = AR6000_XIOCTL_AP_COMMIT_CONFIG;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_INACT_TIME:
         ((int *)buf)[0] = AR6000_XIOCTL_AP_CONN_INACT_TIME;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_PROT_TIME:
         ((int *)buf)[0] = AR6000_XIOCTL_AP_PROT_SCAN_TIME;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;        
     case WMI_AP_SET_MLME:
         iwr.u.data.pointer = buf;
         iwr.u.data.length = sizeof(struct ieee80211req_mlme);
         if (ioctl(s, IEEE80211_IOCTL_SETMLME, &iwr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_SET_DTIM:
         ((int *)buf)[0] = AR6000_XIOCTL_AP_SET_DTIM;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_GET_COUNTRY_LIST:
@@ -2771,7 +2771,7 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_DISABLE_REGULATORY:
@@ -2782,14 +2782,14 @@ main (int argc, char **argv)
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0)
         {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     case WMI_AP_INTRA_BSS:
         ((int *)buf)[0] = AR6000_XIOCTL_AP_INTRA_BSS_COMM;
         ifr.ifr_data = buf;
         if (ioctl(s, AR6000_IOCTL_EXTENDED, &ifr) < 0) {
-            fprintf(stderr, ifr.ifr_name);
+            fprintf(stderr, "%s\n", ifr.ifr_name);
         }
         break;
     default:

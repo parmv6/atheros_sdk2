@@ -20,6 +20,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/../include \
 	$(KERNEL_HEADERS)/linux \
 	external/bluetooth/bluez/include/bluetooth \
+	external/bluetooth/bluez/lib/bluetooth \
 	$(call include-path-for, dbus) \
 	$(call include-path-for, bluez-libs)
 
