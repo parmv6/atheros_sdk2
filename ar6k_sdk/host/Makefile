@@ -1,5 +1,22 @@
+#------------------------------------------------------------------------------
+# <copyright file="Makefile" company="Atheros">
+#    Copyright (c) 2005-2010 Atheros Corporation.  All rights reserved.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation;
+#
+# Software distributed under the License is distributed on an "AS
+# IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# rights and limitations under the License.
+#
+#
+#------------------------------------------------------------------------------
+#==============================================================================
+# Author(s): ="Atheros"
+#==============================================================================
 # AR6K Host driver makefile
-# Copyright 2006 Atheros Communications, Inc.
 # 
 # Minimal build invocation:
 #   
@@ -64,7 +81,6 @@ export  ATH_HC_DRIVERS
 export  ATH_HTC_RAW_INT_ENV
 # ATHENV
 export  ATH_ANDROID_ENV
-export  ATH_FAKE_EEPROM_USED
 # ATHENV
 
 ATH_SRC_BASE :=$(shell pwd)
@@ -117,10 +133,6 @@ endif
 export COMPILED_IMAGE_OBJECTS_PATH
 export COMPILED_BIN_OBJECTS_PATH
 
-# control variables for conditionally compiling some tools
-ATH_BUILD_SYSTEM_TOOLS ?=yes
-ATH_BUILD_BTFILTER ?=no
-
 all: modules
 
 modules:
@@ -132,150 +144,16 @@ endif
 	$(_MAKE_BIN_OUTPUT_DIR)
 	$(MAKE)  $(_CROSS_COMPILE_LINE) -C $(ATH_LINUXPATH) ATH_HIF_TYPE=$(ATH_HIF_TYPE) SUBDIRS=$(ATH_SRC_BASE)/os/linux modules
 	$(MAKE) -C hif/$(ATH_HIF_TYPE)
-#	$(MAKE) -C tools/athprof/
-#	$(MAKE) -C tools/bmiloader/
-#	$(MAKE) -C tools/mkdsetimg/
-#	$(MAKE) -C tools/eeprom/
-#	$(MAKE) -C tools/flashloader/
-#	$(MAKE) -C tools/forcereset/
-#	$(MAKE) -C tools/regDbGen/
-#	if [ -e tools/ini2dset/ ]; \
-#	then \
-#		$(MAKE) -C tools/ini2dset/; \
-#	fi
-#	$(MAKE) -C tools/tcmd/
-#	$(MAKE) -C tools/wmiconfig/
-#	$(MAKE) -C tools/createimage/
-#	$(MAKE) -C tools/checkTargetStatus/
-#	$(MAKE) -C tools/phyregs/
-#	$(MAKE) -C tools/recEvent/
-#	$(MAKE) -C tools/rompatcher/
-#	$(MAKE) -C tools/bdiff/
-#	if [ -e tools/licensing/ ]; \
-#	then \
-#		$(MAKE) -C tools/licensing/; \
-#	fi	
-#ifeq ($(ATH_BUILD_SYSTEM_TOOLS),yes) 		
-#	if [ -e tools/systemtools/ ];   \
-#	then \
-#		if [ -e tools/systemtools/tools/createini/ ]; \
-#			then \
-#				$(MAKE) -C tools/systemtools/ -f makefile.linux all; \
-#        	else \
-#				$(MAKE) -C tools/systemtools/ -f makefile.linux.customer all; \
-#		fi \
-#	fi
-#endif
-#	$(MAKE) -C tools/dbgParser/
-#	$(MAKE) -C tests/floodtest/
-#	$(MAKE) -C tests/mboxping/
-#	$(MAKE) -C tests/dsetpatch/
-#	$(MAKE) -C 3rdparty/supplicant/opensrc_0_4_9/
-#	$(MAKE) -C 3rdparty/supplicant/opensrc_0_5_10/common/
-#	$(MAKE) -C 3rdparty/supplicant/opensrc_0_5_10/wpa_supplicant/
-#	$(MAKE) -C 3rdparty/supplicant/opensrc_0_5_10/wpatalk/
-#	$(MAKE) -C 3rdparty/pgen/
-#	$(MAKE) -C 3rdparty/WPS/Intel_SDK_1_0_5/linux/	
-#	$(MAKE) -C dwsim/
-#ifeq ($(ATH_BUILD_BTFILTER),yes) 	
-#	$(MAKE) -C btfilter/ -f Makefile
-#	$(MAKE) -C tools/athbtfilter/bluez/
-#endif
-#	$(MAKE) -C tools/athbtfilter/bluez/
-#	$(MAKE) -C 3rdparty/hostapd/hostapd-0.5.10/
-#	cp -f $(ATH_SRC_BASE)/os/linux/ar6000.$(KMOD_EXTENSION) $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/athprof/athprof $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/bmiloader/bmiloader $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/mkdsetimg/mkdsetimg $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/eeprom/eeprom.AR6001 $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/eeprom/eeprom.AR6002 $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/flashloader/flashloader $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/forcereset/forcereset $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/wmiconfig/wmiconfig $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/createimage/createimage $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/phyregs/phyregs $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/checkTargetStatus/checkTargetStatus $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/tcmd/athtestcmd $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/recEvent/recEvent $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/recEvent/restore.sh $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/rompatcher/rompatcher $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/rompatcher/fwpatch $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/bdiff/bdiff $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tests/floodtest/floodtest $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tests/mboxping/mboxping $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f tools/regDbGen/regulatory*.bin $(COMPILED_BIN_OBJECTS_PATH)
-#	cp -f tests/dsetpatch/regulatory*.diff $(COMPILED_BIN_OBJECTS_PATH)
-#	if [ -e tools/ini2dset/ ]; \
-#	then \
-#	    cp -rf tools/ini2dset/ini_ar600* $(COMPILED_BIN_OBJECTS_PATH); \
-#	fi
-#ifeq ($(ATH_BUILD_SYSTEM_TOOLS),yes) 	
-#	if [ -e tools/systemtools/ ];   \
-#	then \
-#		if [ -e tools/systemtools/tools/createini/ ]; \
-#		then \
-#			cp -f tools/systemtools/art/Linux/art.out $(COMPILED_IMAGE_OBJECTS_PATH); \
-#			cp -f tools/systemtools/devlib/Linux/libdevlib.so $(COMPILED_IMAGE_OBJECTS_PATH); \
-#			cp -f tools/systemtools/mdk/Linux/mdk.out $(COMPILED_IMAGE_OBJECTS_PATH); \
-#			cp -f tools/systemtools/mdk/Linux/dk.pm $(COMPILED_IMAGE_OBJECTS_PATH); \
-#		else \
-#	    	cp -f tools/systemtools/art/Linux_cust/art.out $(COMPILED_IMAGE_OBJECTS_PATH); \
-#			cp -f tools/systemtools/devlib/Linux_cust/libdevlib.so $(COMPILED_IMAGE_OBJECTS_PATH); \
-#		fi \
-#	fi	
-#endif		
-#	cp -f tools/dbgParser/dbgParser $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f 3rdparty/supplicant/opensrc_0_5_10/wpa_supplicant/wpa_supplicant  $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f 3rdparty/supplicant/opensrc_0_5_10/wpa_supplicant/wpa_cli  $(COMPILED_IMAGE_OBJECTS_PATH)	
-#	cp -f 3rdparty/supplicant/opensrc_0_5_10/wpatalk/wpatalk  $(COMPILED_IMAGE_OBJECTS_PATH)		
-#	cp -f 3rdparty/pgen/pgen  $(COMPILED_IMAGE_OBJECTS_PATH)	
-#	cp -f 3rdparty/pgen/pget  $(COMPILED_IMAGE_OBJECTS_PATH)	
-#	cp -f 3rdparty/pgen/phone  $(COMPILED_IMAGE_OBJECTS_PATH)	
-#	cp -f 3rdparty/pgen/staut  $(COMPILED_IMAGE_OBJECTS_PATH)	
-#	cp -f 3rdparty/pgen/upsd  $(COMPILED_IMAGE_OBJECTS_PATH)	
-#	cp -f 3rdparty/hostapd/hostapd-0.5.10/hostapd $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f 3rdparty/hostapd/hostapd-0.5.10/config/ar6k.conf $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f 3rdparty/hostapd/hostapd-0.5.10/config/ar6k-wpa.conf $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f 3rdparty/hostapd/hostapd-0.5.10/config/ar6k-wpa2.conf $(COMPILED_IMAGE_OBJECTS_PATH)
-#	cp -f 3rdparty/WPS/Intel_SDK_1_0_5/linux/wsccmd  $(COMPILED_IMAGE_OBJECTS_PATH)			
-#	cp -f 3rdparty/WPS/Intel_SDK_1_0_5/linux/wsc_config.txt  $(COMPILED_IMAGE_OBJECTS_PATH)				
-#	if [ -r  $(ATH_SRC_BASE)/3rdparty/supplicant/ds/linux/bin/$(ATH_BUILD_TYPE) ]; then \
-#		cp -f  $(ATH_SRC_BASE)/3rdparty/supplicant/ds/linux/bin/$(ATH_BUILD_TYPE)/*  $(COMPILED_IMAGE_OBJECTS_PATH);\
-#	fi
-#	if [ -e btfilter/libbtfilt.a ]; \
-#		then \
-#		cp -f btfilter/libbtfilt.a $(COMPILED_IMAGE_OBJECTS_PATH); \
-#	fi
-#	if [ -e tools/athbtfilter/bluez/abtfilt ]; \
-#		then \
-#		cp -f tools/athbtfilter/bluez/abtfilt $(COMPILED_IMAGE_OBJECTS_PATH); \
-#	fi
-	
+	cp -f $(ATH_SRC_BASE)/os/linux/ar6000.$(KMOD_EXTENSION) $(COMPILED_IMAGE_OBJECTS_PATH)
+
 clean:
 	rm -f os/linux/ar6000.mod.c os/linux/*.o os/linux/*.ko wmi/*.o htc/AR6000/src/*.o htc/*.o \
-	bmi/src/*.o wlan/src/*.o driver/* apps/wpa_supplicant/*.o tools/athprof/athprof \
-	tools/bmiloader/bmiloader tools/dsetsvr/dsetsvr tools/flashloader/flashloader \
-	tools/forcereset/forcereset tools/regDbGen/regDomainGenDb tools/regDbGen/*.bin \
-	tools/rompatcher/rompatcher tools/rompatcher/fwpatch tests/floodtest/floodtest \
-	tests/mboxping/mboxping tools/wmiconfig/wmiconfig tools/mkdsetimg/mkdsetimg \
-	tools/eeprom/eeprom dwsim/*.o dwsim/dwsim \
-	tools/eeprom/eeprom.AR6001 tools/eeprom/eeprom.AR6002 \
-	3rdparty/supplicant/opensrc_0_5_10/common/*.d 3rdparty/supplicant/opensrc_0_5_10/common/*.o \
-	3rdparty/supplicant/opensrc_0_5_10/common/*.so 3rdparty/supplicant/opensrc_0_5_10/common/*.a \
-	3rdparty/supplicant/opensrc_0_5_10/wpa_supplicant/*.d 3rdparty/supplicant/opensrc_0_5_10/wpa_supplicant/*.o\
-	3rdparty/supplicant/opensrc_0_5_10/wpatalk/*.d 3rdparty/supplicant/opensrc_0_5_10/wpatalk/*.o \
-	btfilter/*.o btfilter/*.a 3rdparty/hostapd/hostapd-0.5.10/*.d \
-	tools/athbtfilter/bluez/abtfilt
+	bmi/src/*.o wlan/src/*.o driver/* 
 
 # The kernel module build process leaves some intermediate files, this will clean up all these files
 	find $(ATH_SRC_BASE) \( -not -path "*.output*" -a -name '*.[oas]' -o -name core -o -name '.*.flags' -o -name '.ko' -o -name '.*.cmd' \) -type f -print \
 		| grep -v lxdialog/ | xargs rm -f
 	$(MAKE) -C hif/$(ATH_HIF_TYPE) clean
-	if [ -e tools/ini2dset/ ]; \
-	then \
-		$(MAKE) -C tools/ini2dset/ clean; \
-	fi
-#	$(MAKE) -C tests/dsetpatch/ clean
 
 clobber:clean
 	rm -rf .output

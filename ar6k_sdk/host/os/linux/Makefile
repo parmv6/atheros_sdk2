@@ -1,3 +1,23 @@
+#------------------------------------------------------------------------------
+# <copyright file="Makefile" company="Atheros">
+#    Copyright (c) 2005-2007 Atheros Corporation.  All rights reserved.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation;
+#
+# Software distributed under the License is distributed on an "AS
+# IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# rights and limitations under the License.
+#
+#
+#------------------------------------------------------------------------------
+#==============================================================================
+# Author(s): ="Atheros"
+#==============================================================================
+#
+
 #######################################################################################
 #  AR6K Kernel Module makefile.
 #
@@ -10,10 +30,16 @@
 
 REV ?= 2
 
+# ATHENV
+ifeq ($(ATH_ANDROID_ENV),yes)
+EXTRA_CFLAGS += -D__linux__ -Wno-error
+endif
+# ATHENV
+
 EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/include
 EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/../include
 # TBDXXX....handle include/AR6002
-EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/../include/AR6001
+EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/../include/AR6002
 EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/wlan/include
 EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/os/linux/include
 EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/os/
@@ -21,16 +47,26 @@ EXTRA_CFLAGS += -I$(ATH_SRC_BASE)/bmi/include
 
 EXTRA_CFLAGS += -DLINUX -DDEBUG -D__KERNEL__ \
                 -DTCMD -DSEND_EVENT_TO_APP -DUSER_KEYS \
-                -DNO_SYNC_FLUSH #\
+                -DNO_SYNC_FLUSH -DWAPI_ENABLE #\
                 -DMULTIPLE_FRAMES_PER_INTERRUPT -DAR6000REV$(REV) \
                 -DBLOCK_TX_PATH_FLAG \
 
 # ATHENV
-ifeq ($(ATH_ANDROID_ENV),yes)
-  EXTRA_CFLAGS += -DANDROID_ENV
+
+  EXTRA_CFLAGS += -DANDROID_ENV $(ATH_ANDROID_BUILD_FLAGS)
+
+ifeq ($(ATH_EEPROM_FILE_USED),yes)
+  EXTRA_CFLAGS += -DEEPROM_FILE_USED
 endif
-ifeq ($(ATH_FAKE_EEPROM_USED),yes)
-  EXTRA_CFLAGS += -DFAKE_EEPROM_USED
+ifeq ($(ATH_SOFTMAC_USED),yes)
+  EXTRA_CFLAGS += -DSOFTMAC_USED
+endif
+ifeq ($(ATH_FORCE_TCMD_MODE),yes)
+  EXTRA_CFLAGS += -DFORCE_TCMD_MODE
+endif
+ifeq ($(ATH_FORCE_ART_MODE),yes)
+  EXTRA_CFLAGS += -DFORCE_ART_MODE -DHTC_RAW_INTERFACE
+  ATH_HTC_RAW_INT_ENV = yes
 endif
 # ATHENV
 
