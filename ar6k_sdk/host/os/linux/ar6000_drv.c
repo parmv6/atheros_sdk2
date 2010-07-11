@@ -102,7 +102,9 @@ const char *def_ifname = "ath0";
 struct wake_lock ar6k_init_wake_lock;
 struct wake_lock ar6k_wow_wake_lock;
 static int screen_is_off;
+#ifdef CONFIG_HAS_EARLYSUSPEND
 static struct early_suspend ar6k_early_suspend;
+#endif
 
 char *fm_path = NULL;
 char *tgt_fw = "/system/lib/hw/wlan/athwlan.bin.z77";
@@ -1125,10 +1127,12 @@ ar6000_init_module(void)
 #ifdef ANDROID_ENV
     wake_lock_init(&ar6k_init_wake_lock, WAKE_LOCK_SUSPEND, "ar6k_init");
     wake_lock_init(&ar6k_wow_wake_lock, WAKE_LOCK_SUSPEND, "ar6k_wow");
+#ifdef CONFIG_HAS_EARLYSUSPEND
     ar6k_early_suspend.suspend = android_early_suspend;
     ar6k_early_suspend.resume  = android_late_resume;
     ar6k_early_suspend.level   = EARLY_SUSPEND_LEVEL_BLANK_SCREEN;
     register_early_suspend(&ar6k_early_suspend);
+#endif
 #endif
 /* ATHENV */
 
@@ -1182,7 +1186,9 @@ ar6000_cleanup_module(void)
 
 /* ATHENV */
 #ifdef ANDROID_ENV
+#ifdef CONFIG_HAS_EARLYSUSPEND
     unregister_early_suspend(&ar6k_early_suspend);
+#endif
     wake_lock_destroy(&ar6k_wow_wake_lock);
     wake_lock_destroy(&ar6k_init_wake_lock);
 #endif
