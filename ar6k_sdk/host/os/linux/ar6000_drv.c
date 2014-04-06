@@ -1603,7 +1603,10 @@ static void ar6000_enable_mmchost_detect_change(int enable)
     if (ar6000_readwrite_file("/sys/devices/platform/" MMC_MSM_DEV "/detect_change", 
                                NULL, buf, length) < 0) {
         /* fall back to polling */
-        ar6000_readwrite_file("/sys/devices/platform/" MMC_MSM_DEV "/polling", NULL, buf, length);
+	printk("ar6000_enable_mmchost_detect_change: fallback to polling. write %d\n", enable);
+        if(ar6000_readwrite_file("/sys/devices/platform/" MMC_MSM_DEV "/polling", NULL, buf, length) < 0) {
+	    printk("ar6000_enable_mmchost_detect_change: polling write failed\n");
+        }
     }
 #endif
 #endif /* ANDROID_ENV */
