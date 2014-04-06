@@ -27,6 +27,7 @@ static const char athId[] __attribute__ ((unused)) = "$Id: //depot/sw/releases/o
 #include "htc.h"
 #include "engine.h"
 #include "wmi_filter_linux.h"
+#include <linux/gpio.h>
 
 #define IS_MAC_NULL(mac) (mac[0]==0 && mac[1]==0 && mac[2]==0 && mac[3]==0 && mac[4]==0 && mac[5]==0)
 #define IS_MAC_BCAST(mac) (*mac==0xff)
@@ -809,6 +810,9 @@ static void ar6000_pwr_on(AR_SOFTC_T *ar)
         /* turn on for all cards */
         }
     printk("%s --enter\n", __func__);
+    printk("ar6000_pwr_on: wifi power up put reset gpio high gpio_set_value(18, 1)\n");
+    gpio_set_value(18, 1);
+    mdelay(10);
     /*
      * sample code of powerup sequence:
      * 1. enable io suppiles.
@@ -860,6 +864,9 @@ static void ar6000_pwr_down(AR_SOFTC_T *ar)
         /* shutdown for all cards */
     }
     printk("%s --enter\n", __func__);
+    printk("ar6000_pwr_down: wifi power down put reset gpio low gpio_set_value(18, 0)\n");
+    gpio_set_value(18, 0);
+
     /* we can power down the chip here
      * sample code of powerup sequence:
      * 1. enable io suppiles.
@@ -1093,6 +1100,9 @@ ar6000_init_module(void)
 /* ATHENV */
 #ifdef ANDROID_ENV
 
+    printk("ar6000_init_module: gpio_direction_output(17, 1)\n");
+    gpio_direction_output(17, 1);
+
 #if defined(ANDROID_ENV) && defined(FORCE_TCMD_MODE)
     work_mode = 1;
 #endif
@@ -1190,7 +1200,10 @@ ar6000_init_module(void)
     if(status != A_OK)
         return -ENODEV;
 
+    /* no idea why the 1,0 dance but it works and is what the binary driver does */
+    printk("ar6000: Trigger mmc detect for adding sdio wifi card\n");
     ar6000_enable_mmchost_detect_change(1);
+    ar6000_enable_mmchost_detect_change(0);
     return 0;
 }
 
@@ -1236,7 +1249,10 @@ ar6000_cleanup_module(void)
     platform_driver_unregister(&ar6000_pm_drv);
     platform_device_unregister(&ar6000_pm_dev);
 #endif
+    printk("ar6000: Trigger mmc detect for removing sdio wifi card\n");
     ar6000_enable_mmchost_detect_change(1);
+    ar6000_enable_mmchost_detect_change(0);
+    mdelay(1000);
 
     AR_DEBUG_PRINTF("ar6000_cleanup: success\n");
 }
@@ -1961,8 +1977,6 @@ ar6000_avail_ev(void *context, void *hif_handle)
         AR_DEBUG_PRINTF("ar6000_available: max devices reached\n");
         return A_ERROR;
     }
-
-    ar6000_enable_mmchost_detect_change(0);
 
     /* Save this. It gives a bit better readability especially since */
     /* we use another local "i" variable below.                      */
