@@ -1210,6 +1210,14 @@ ar6000_ioctl_setparam(AR_SOFTC_T *ar, int param, int value)
                     ar->arPairwiseCrypto = NONE_CRYPT;
                     profChanged          = TRUE;
                     break;
+                case IEEE80211_CIPHER_MAX:
+                    printk("ar6000_ioctl_setparam: IEEE80211_PARAM_UCASTCIPHER == %d, value IEEE80211_CIPHER_MAX == %d, setting PW AES_CRYPT\n", param, value);
+                    ar->arPairwiseCrypto = AES_CRYPT;
+                    profChanged          = TRUE;
+                    break;
+                default:
+                    printk("ar6000_ioctl_setparam: Warning: IEEE80211_PARAM_UCASTCIPHER == %d, unknown value %d\n", param, value);
+                    break;
             }
             break;
         case IEEE80211_PARAM_UCASTKEYLEN:
@@ -1251,6 +1259,9 @@ ar6000_ioctl_setparam(AR_SOFTC_T *ar, int param, int value)
                 return -EIO;
             }
             wmi_set_tkip_countermeasures_cmd(ar->arWmi, value);
+            break;
+        case IEEE80211_PARAM_PRIVACY:
+            printk("ar6000_ioctl_setparam: IEEE80211_PARAM_PRIVACY value %d. doing nothing.\n", value);
             break;
         default:
             break;

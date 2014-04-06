@@ -82,6 +82,7 @@ enum {
 #define WOW_ENABLE_MAX_INTERVAL 0
 #include <linux/platform_device.h>
 #include <linux/inetdevice.h>
+int wowenable = 1; /* 1 to enable WoW automatically */
 int buspm = WLAN_PWR_CTRL_WOW;
 int wow2mode = WLAN_PWR_CTRL_DEEP_SLEEP;
 int wowledon;
@@ -214,6 +215,7 @@ module_param(txpwr, int, 0644);
 /* ATHENV */
 #ifdef CONFIG_PM
 module_param(buspm, int, 0644);
+module_param(wowenable, int, 0644);
 #endif /* CONFIG_PM */
 #ifdef CONFIG_HOST_TCMD_SUPPORT
 module_param(testmode, int, 0644);
@@ -5446,6 +5448,12 @@ ar6000_ap_mode_profile_commit(struct ar6_softc *ar)
     wmi_ap_profile_commit(ar->arWmi, &p);
     ar->arConnected = TRUE;
     ar->ap_profile_flag = 0;
+
+    /* the zte binary does this. without it, AP mode is stuck in (as seen by
+     * netcfg) mode 0x1003 and never transitions to working state of 0x1043
+     */
+    printk("ar6000_ap_mode_profile_commit: for AP do netif_carrier_on()\n");
+    netif_carrier_on(ar->arNetDev);
 
     switch(ar->arAuthMode) {
     case NONE_AUTH:
