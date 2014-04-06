@@ -85,6 +85,13 @@ enum {
 int buspm = WLAN_PWR_CTRL_WOW;
 int wow2mode = WLAN_PWR_CTRL_DEEP_SLEEP;
 int wowledon;
+#if defined(CONFIG_MACH_V9) || defined(CONFIG_MACH_BLADE)
+int allowDeepSleepDisabled = 0; // =0 to force DEEP_SLEEP which disables the IRQ
+A_STATUS suspendEvReturnValue = -EBUSY; // -EBUSY is a weird ZTE way to tell the mmc layer to leave power on and turn off the clocks
+#else
+int allowDeepSleepDisabled = 1;
+A_STATUS suspendEvReturnValue = A_OK;
+#endif
 #endif /* CONFIG_PM */
 
 
@@ -156,7 +163,7 @@ int tspecCompliance = ATHEROS_COMPLIANCE;
 unsigned int busspeedlow = 0;
 unsigned int onebitmode = 0;
 unsigned int skipflash = 0;
-unsigned int wmitimeout = 2;
+unsigned int wmitimeout = 6;
 unsigned int wlanNodeCaching = 1;
 unsigned int enableuartprint = 0;
 unsigned int logWmiRawMsgs = 0;
@@ -286,7 +293,7 @@ MODULE_PARM(txcreditintrenableaggregate, "0-3i");
 
 #endif /* DEBUG */
 
-unsigned int resetok = 1;
+unsigned int resetok = 0;
 
 unsigned int tx_attempt[HTC_MAILBOX_NUM_MAX] = {0};
 unsigned int tx_post[HTC_MAILBOX_NUM_MAX] = {0};
@@ -777,6 +784,7 @@ static void ar6000_wow_suspend(AR_SOFTC_T *ar)
                 AR_DEBUG_PRINTF("Fail to setup IP for ARP agent\n");
             }
         }
+        printk("ar6000_wow_suspend: set power mode to rec\n");
         wmi_powermode_cmd(ar->arWmi, REC_POWER);
 
         status = wmi_set_wow_mode_cmd(ar->arWmi, &wowMode);
@@ -904,27 +912,29 @@ wow_not_connected:
 
     switch (pmmode) {
     case WLAN_PWR_CTRL_DEEP_SLEEP:
-        if (ar->arWlanState == WLAN_DISABLED) {
+        if (allowDeepSleepDisabled && ar->arWlanState == WLAN_DISABLED) {
             ar->arOsPowerCtrl = WLAN_PWR_CTRL_DEEP_SLEEP_DISABLED;
             AR_DEBUG_PRINTF("%s:Suspend for deep sleep disabled mode %d\n", __func__, ar->arOsPowerCtrl);
         } else {
             ar6000_set_wlan_state(ar, WLAN_DISABLED);
             ar->arOsPowerCtrl = WLAN_PWR_CTRL_DEEP_SLEEP;
-            AR_DEBUG_PRINTF("%s:Suspend for deep sleep mode %d\n", __func__, ar->arOsPowerCtrl);
+            AR_DEBUG_PRINTF("%s:Suspend for deep sleep mode %d%s\n", __func__, ar->arOsPowerCtrl, allowDeepSleepDisabled ? "" : " (disallow DEEP_SLEEP_DISABLED)");
         }              
-        status = A_OK;
+        status = suspendEvReturnValue;
         break;
     case WLAN_PWR_CTRL_WOW:
-        if (ar->arWmiReady && ar->arWlanState==WLAN_ENABLED && ar->arConnected) {
+        if (wowenable && ar->arWmiReady && ar->arWlanState==WLAN_ENABLED && ar->arConnected) {
             ar->arOsPowerCtrl = WLAN_PWR_CTRL_WOW;
             AR_DEBUG_PRINTF("%s: Suspend for wow mode %d\n", __func__, ar->arOsPowerCtrl);
             ar6000_wow_suspend(ar);
             A_MDELAY(250);
             ar->arWowState = WOW_STATE_SUSPENDED;
-            //HIFMaskInterrupt((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
+            printk("ar6000_suspend_ev: wow mask interrupt\n");
+            HIFMaskInterrupt((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
             /* leave for pm_device to setup wow */
-            status = A_OK;
+            status = suspendEvReturnValue;
         } else {
+            printk("ar6000_suspend_ev: going to wow2mode (deep sleep)\n");
             pmmode = wow2mode;
             goto wow_not_connected;
         }
@@ -940,6 +950,7 @@ wow_not_connected:
     }
 
     ar->scan_triggered = 0;
+    printk("ar6000_suspend_ev: returning status %d\n", status);
     return status;
 }
 
@@ -951,7 +962,8 @@ static A_STATUS ar6000_resume_ev(void *context)
     ar->arOsPowerCtrl = WLAN_PWR_CTRL_UP;
     switch (powerCtrl) {
     case WLAN_PWR_CTRL_WOW:
-        //HIFUnMaskInterrupt((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
+        printk("ar6000_resume_ev: unmask interrupt\n");
+        HIFUnMaskInterrupt((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
         ar6000_wow_resume(ar);
         break;
     case WLAN_PWR_CTRL_CUT_PWR:
@@ -961,6 +973,7 @@ static A_STATUS ar6000_resume_ev(void *context)
         ar6000_set_wlan_state(ar, WLAN_ENABLED);
         break;
     case WLAN_PWR_CTRL_DEEP_SLEEP_DISABLED:
+        ar6000_set_wlan_state(ar, WLAN_ENABLED);
         break;
     case WLAN_PWR_CTRL_UP:
         break;
@@ -968,6 +981,7 @@ static A_STATUS ar6000_resume_ev(void *context)
         AR_DEBUG_PRINTF("%s: Strange SDIO bus power mode!!\n", __func__);
         break; 
     }
+    printk("ar6000_resume_ev: returning A_OK\n");
     return A_OK;
 }
 
@@ -984,13 +998,16 @@ static int ar6000_pm_suspend(struct platform_device *dev, pm_message_t state)
         AR_DEBUG_PRINTF("%s: enter status %d\n", __func__, ar->arOsPowerCtrl);
 
         if(buspm == WLAN_PWR_CTRL_WOW) {
-            status = HIFDoDeviceSuspend((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
-            AR_DEBUG_PRINTF("AR6000: Setup WoW successfully\n");
-            return status;
+            printk("ar6000_pm_suspend: NOT doing wow HIFDoDeviceSuspend\n");
+            //status = HIFDoDeviceSuspend((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget)); // this calls suspend_ev which in turn calls wow_suspend, and then it does an device async_shutdown of some sort
+            //AR_DEBUG_PRINTF("AR6000: Setup WoW successfully\n");
+            //return status;
+            status = A_OK;
         }
 
         switch (ar->arOsPowerCtrl) {
         case WLAN_PWR_CTRL_CUT_PWR:
+            printk("ar6000_pm_suspend: doing ar6000_pwr_down\n");
             ar6000_pwr_down(ar);
             break;
         case WLAN_PWR_CTRL_WOW:
@@ -1012,7 +1029,7 @@ static int ar6000_pm_suspend(struct platform_device *dev, pm_message_t state)
             break;
        }
     }
-    return 0;
+    return (status == A_OK)? 0 : status;
 }
 
 static int ar6000_pm_resume(struct platform_device *dev)
@@ -1028,13 +1045,15 @@ static int ar6000_pm_resume(struct platform_device *dev)
         AR_DEBUG_PRINTF("%s: enter status %d\n", __func__, ar->arOsPowerCtrl);
 
         if(buspm == WLAN_PWR_CTRL_WOW) {
-            status = HIFDoDeviceResume((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
+            printk("ar6000_pm_resume: NOT doing wow HIFDoDeviceResume\n");
+            //status = HIFDoDeviceResume((HIF_DEVICE*)HTCGetHifDevice(ar->arHtcTarget));
             AR_DEBUG_PRINTF("Ar6000: Resume from WoW successfully\n");
             return status;
         }
 
         switch (ar->arOsPowerCtrl) {
         case WLAN_PWR_CTRL_CUT_PWR:
+            printk("ar6000_pm_resume: doing ar6000_pwr_on\n");
             ar6000_pwr_on(ar);
             break;
         case WLAN_PWR_CTRL_WOW:

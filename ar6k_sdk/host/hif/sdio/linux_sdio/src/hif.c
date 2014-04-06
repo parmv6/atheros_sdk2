@@ -668,6 +668,8 @@ void HIFMaskInterrupt(HIF_DEVICE *device)
         sdio_release_host(device->func);
         schedule_timeout(HZ/10);
         sdio_claim_host(device->func);
+        // rjh - binary driver has this here:
+        printk("!!!loop in HIFMaskInterrupt\n");
     }
     ret = sdio_release_irq(device->func);
     sdio_release_host(device->func);
